@@ -43,9 +43,18 @@ class Solution:
             
         return True
     
-    def solved(self):
-        print(self.test_solution())
+    def part1(self):
+        try:
+            part1_test = sum([self.solve(i) for i in self.test])
+            assert part1_test == 142
+
+            print(sum([self.solve(i) for i in self.prod]))
+
+        except AssertionError as e:
+            e.add_note(f'part1 test ans {part1_test} is not 142')
+            raise e
+
 
 
 a = Solution()
-a.solved()
+a.part1()
