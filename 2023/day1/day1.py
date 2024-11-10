@@ -1,46 +1,51 @@
-'''
-    Attempt at Day 1
-'''
-import os
 class Solution:
+    '''
+        Attempt at Day 1
+    '''
     def __init__(self):
-        self.year   = '2023'
-        self.day    = '1'
-        self.prod   = self.read('input.txt')
-        self.test   = self.read('input_test.txt')
+        self.year       = '2023'
+        self.day        = '1'
+        self.prod       = self.read('input.txt')
+        self.test       = self.read('input_test.txt')
+        self.test_ans   = [12,38,15,77]
 
-    def read(self, filename) -> list:
+    def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = f.readlines()
-            f.close()
+            input = [l.strip('\n') for l in f]
 
         return input
     
-    def show_test(self):
-        for i in self.test:
-            print(i)
+    def solve(self, input: str) -> int:
 
-Solution()
+        for char in input:
+            if char.isdigit():
+                firstNum = char
+                break
+        
+        for char in input[::-1]:
+            if char.isdigit():
+                secondNum = char
+                break
+        
+        ans = int(firstNum + secondNum)
+        
+        return ans
+
+    def test_solution(self) -> bool:
+
+        for i, a in zip(self.test, self.test_ans):
+            try:
+                try_ans = self.solve(i)
+                assert try_ans == a
+            except AssertionError as e:
+                e.add_note(f'{try_ans} is not {a} for input\n{i}')
+                raise e
+            
+        return True
+    
+    def solved(self):
+        print(self.test_solution())
 
 
-with open(f'./2023/day1/input_test.txt') as f:
-    print(f.readlines())
-    f.close()
-
-# def tests(self) -> bool:
-#     assert self.solve('1abc2') == 12
-#     assert self.solve('pqr3stu8vwx') == 38
-#     assert self.solve('a1b2c3d4e5f') == 15
-#     assert self.solve('treb7uchet') == 77
-
-#     return True
-
-# def solve(self, input) -> int:
-
-#     numbers = 
-
-#     char_list = input.str.split('')
-
-#     nums = [ for i in char_list]
-
-#     return ans
+a = Solution()
+a.solved()
