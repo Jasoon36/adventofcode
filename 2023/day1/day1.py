@@ -66,12 +66,13 @@ class Solution:
     def part1(self):
         try:
             part1_test = sum([self.solve(i) for i in self.test])
-            assert part1_test == 142
+            ans = 142
+            assert part1_test == ans
 
             print(sum([self.solve(i) for i in self.prod]))
 
         except AssertionError as e:
-            e.add_note(f'part1 test ans {part1_test} is not 142')
+            e.add_note(f'part1 test ans {part1_test} is not {ans}')
             raise e
         
     def solve2(self, input) -> int:
@@ -128,16 +129,18 @@ class Solution:
     def part2(self):
         try:
             part2_test = sum([self.solve2(i) for i in self.test2])
-            assert part2_test == 281
+            ans = 281
+            assert part2_test == ans
 
             print(sum([self.solve2(i) for i in self.prod]))
 
         except AssertionError as e:
-            e.add_note(f'part2 test ans {part2_test} is not 281')
+            e.add_note(f'part2 test ans {part2_test} is not {ans}')
             raise e
 
 
 
 
 a = Solution()
+a.part1()
 a.part2()
