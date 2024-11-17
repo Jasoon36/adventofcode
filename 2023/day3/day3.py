@@ -1,43 +1,21 @@
 class Solution:
     '''
-        Attempt at Day 
+        Attempt at Day 3
     '''
     def __init__(self):
         self.year           = '2023'
-        self.day            = ''
+        self.day            = '3'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
-        self.test1Ans       = []
-        self.test2Ans       = []
-        self.part1TestAns   = 0
-        self.part2TestAns   = 0
+        self.part1TestAns   = 4361
+        self.part2TestAns   = 467835
 
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [l.strip('\n') for l in f]
+            input = [el.strip('\n') for el in f]
 
         return input
-    
-    
-    def solve1(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution1(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve1(line)
-                assert attempt == self.part1Test
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part1(self, realAttempt = False) -> int:
 
@@ -46,10 +24,61 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        # first get locations of symbol locations
+        symbolLocations = [
+            (el, c)
+                for el, line in enumerate(input)
+                for c, char in enumerate(line)
+                if (char != '.') and (not char.isdigit())
+        ]
 
-        return attempt
-        
+        # get numbers and check they are next to a symbol
+
+        numbers = []
+
+        for el, line in enumerate(input):
+            
+            appending = False
+            first_c = -1
+            last_c = -1
+
+            for c, char in enumerate(line):
+
+                if char.isdigit():
+                    last_c = c
+                    if not appending:
+                        first_c = c
+                        appending = True
+
+                elif appending:
+                    # check if number is adjcacent
+                    valid_part_number = False
+                    for line_check in (el-1, el, el+1):
+                        for char_check in range(first_c-1, last_c+2):
+                            if (line_check, char_check) in symbolLocations:
+                                valid_part_number = True
+
+                    if valid_part_number:
+                        numbers.append(int(line[first_c:last_c+1]))
+
+                    appending = False
+                    first_c = -1
+                    last_c = -1
+
+            # edge case number is on end of line
+            if appending:
+                # check if number is adjcacent
+                valid_part_number = False
+                for line_check in (el-1, el, el+1):
+                    for char_check in range(first_c-1, last_c+2):
+                        if (line_check, char_check) in symbolLocations:
+                            valid_part_number = True
+
+                if valid_part_number:
+                    numbers.append(int(line[first_c:last_c+1]))
+
+        return sum(numbers)
+
     def runPart1(self):
 
         try:
@@ -61,27 +90,7 @@ class Solution:
         
         realAttempt = True
         print(self.part1(realAttempt))
-
-
-
-    def solve2(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == self.part1Test
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
         
-        print('keep going')
-        return True
     
     def part2(self, realAttempt = False) -> int:
 
@@ -90,9 +99,70 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        # first get locations of symbol locations
+        symbolLocations = {
+            (el, c): []
+                for el, line in enumerate(input)
+                for c, char in enumerate(line)
+                if (char != '.') and (not char.isdigit())
+        }
 
-        return attempt
+        # get numbers and check they are next to a symbol
+
+        for el, line in enumerate(input):
+            
+            appending = False
+            first_c = -1
+            last_c = -1
+
+            for c, char in enumerate(line):
+
+                if char.isdigit():
+                    last_c = c
+                    if not appending:
+                        first_c = c
+                        appending = True
+
+                elif appending:
+                    # check if number is adjcacent
+                    for line_check in (el-1, el, el+1):
+                        for char_check in range(first_c-1, last_c+2):
+                            if (line_check, char_check) in symbolLocations.keys():
+                                symbolLocations[(line_check, char_check)].append(int(line[first_c:last_c+1]))
+
+                    appending = False
+                    first_c = -1
+                    last_c = -1
+
+            # edge case number is on end of line
+            if appending:
+                # check if number is adjcacent
+                for line_check in (el-1, el, el+1):
+                    for char_check in range(first_c-1, last_c+2):
+                        if (line_check, char_check) in symbolLocations.keys():
+                            symbolLocations[(line_check, char_check)].append(int(line[first_c:last_c+1]))
+
+        gearRatios = []
+
+        for symbolLoc, part_numbers in symbolLocations.items():
+
+            if len(part_numbers) != 2:
+                continue
+
+
+            el, c = symbolLoc
+            if input[el][c] != '*':
+                continue
+        
+            # no power function again
+            gearRatio = 1
+            for partnum in part_numbers:
+                gearRatio *= partnum
+            
+            gearRatios.append(gearRatio)
+
+        return sum(gearRatios)
+
         
     def runPart2(self):
 
@@ -106,5 +176,6 @@ class Solution:
         realAttempt = True
         print(self.part2(realAttempt))
 
-
 a = Solution()
+a.runPart1()
+a.runPart2()
