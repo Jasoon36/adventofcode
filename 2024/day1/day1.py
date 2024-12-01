@@ -75,41 +75,54 @@ class Solution:
             left_list.append(int(left))
             right_list.append(int(right))
 
-        left_list.sort()
-        right_list.sort()
 
-        left_count = {}
+        # no longer need to sort
+        # left_list.sort()
+        # right_list.sort()
 
-        current_num = -1
+        
 
-        for number in left_list:
-            if number != current_num:
-                left_count[number] = 0
-                current_num = number
-            
-            left_count[number] += 1
-
-
-        right_count = {}
-
-        current_num = -1
-
-        for number in right_list:
-            if number != current_num:
-                right_count[number] = 0
-                current_num = number
-            
-            right_count[number] += 1
-
+        # after looking at other solutions, simple, still could count each number multiple times though
         similarity_scores = [
-
-            left_key * left_count * right_count[left_key]
-
-                for left_key, left_count
-                in left_count.items()
-                if left_key in right_count.keys()
-
+            left_num * right_list.count(left_num)
+                for left_num 
+                in left_list
         ]
+
+
+        # first solution
+        # left_count = {}
+
+        # current_num = -1
+
+        # for number in left_list:
+        #     if number != current_num:
+        #         left_count[number] = 0
+        #         current_num = number
+            
+        #     left_count[number] += 1
+
+
+        # right_count = {}
+
+        # current_num = -1
+
+        # for number in right_list:
+        #     if number != current_num:
+        #         right_count[number] = 0
+        #         current_num = number
+            
+        #     right_count[number] += 1
+
+        # similarity_scores = [
+
+        #     left_key * left_count * right_count[left_key]
+
+        #         for left_key, left_count
+        #         in left_count.items()
+        #         if left_key in right_count.keys()
+
+        # ]
 
         attempt = sum(similarity_scores)
 
