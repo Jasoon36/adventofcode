@@ -76,12 +76,7 @@ class Solution:
             right_list.append(int(right))
 
 
-        # no longer need to sort
-        # left_list.sort()
-        # right_list.sort()
-
-        # refine my solution
-
+        #### my final solution 
         left_count = {
             left_num : left_list.count(left_num)
                 for left_num
@@ -94,24 +89,19 @@ class Solution:
                 in set(right_list)
         }
 
-        similarity_scores = [
-            left_key * left_count * right_count[left_key]
-                for left_key, left_count
-                in left_count.items()
-                if left_key in right_count.keys()
-        ]
 
-        
-
-        # after looking at other solutions, simple, still could count each number multiple times though
-        # similarity_scores = [
-        #     left_num * right_list.count(left_num)
-        #         for left_num 
-        #         in left_list
-        # ]
+        ### using default value of dict.get()
+        # left_count = {}
+        # for number in left_list:
+        #     left_count[number] = left_count.get(number,0) + 1
 
 
-        # first solution
+        # right_count = {}
+        # for number in right_list:
+        #     right_count[number] = right_count.get(number,0) + 1
+
+
+        ### first solution
         # left_count = {}
 
         # current_num = -1
@@ -135,15 +125,16 @@ class Solution:
             
         #     right_count[number] += 1
 
-        # similarity_scores = [
 
-        #     left_key * left_count * right_count[left_key]
+        similarity_scores = [
 
-        #         for left_key, left_count
-        #         in left_count.items()
-        #         if left_key in right_count.keys()
+            left_key * left_count * right_count[left_key]
 
-        # ]
+                for left_key, left_count
+                in left_count.items()
+                if left_key in right_count.keys()
+
+        ]
 
         attempt = sum(similarity_scores)
 
