@@ -80,14 +80,35 @@ class Solution:
         # left_list.sort()
         # right_list.sort()
 
+        # refine my solution
+
+        left_count = {
+            left_num : left_list.count(left_num)
+                for left_num
+                in set(left_list)
+        }
+
+        right_count = {
+            right_num : right_list.count(right_num)
+                for right_num
+                in set(right_list)
+        }
+
+        similarity_scores = [
+            left_key * left_count * right_count[left_key]
+                for left_key, left_count
+                in left_count.items()
+                if left_key in right_count.keys()
+        ]
+
         
 
         # after looking at other solutions, simple, still could count each number multiple times though
-        similarity_scores = [
-            left_num * right_list.count(left_num)
-                for left_num 
-                in left_list
-        ]
+        # similarity_scores = [
+        #     left_num * right_list.count(left_num)
+        #         for left_num 
+        #         in left_list
+        # ]
 
 
         # first solution
