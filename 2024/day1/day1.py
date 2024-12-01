@@ -7,37 +7,15 @@ class Solution:
         self.day            = '1'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
-        self.test1Ans       = []
-        self.test2Ans       = []
-        self.part1TestAns   = 0
-        self.part2TestAns   = 0
+        self.part1TestAns   = 11
+        self.part2TestAns   = 31
 
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [l.strip('\n') for l in f]
+            input = [line.strip('\n') for line in f]
 
         return input
-    
-    
-    def solve1(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution1(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve1(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part1(self, realAttempt = False) -> int:
 
@@ -46,7 +24,25 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        left_list = []
+        right_list = []
+            
+        for line in input:
+            left, right = line.split()
+
+            left_list.append(int(left))
+            right_list.append(int(right))
+
+        left_list.sort()
+        right_list.sort()
+
+        abs_differences = [
+            abs(left - right)
+                for left, right
+                in zip(left_list, right_list)
+        ]
+
+        attempt = sum(abs_differences)
 
         return attempt
         
@@ -63,26 +59,6 @@ class Solution:
         print(self.part1(realAttempt))
 
 
-
-    def solve2(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
-    
     def part2(self, realAttempt = False) -> int:
 
         if realAttempt:
@@ -90,7 +66,52 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        left_list = []
+        right_list = []
+            
+        for line in input:
+            left, right = line.split()
+
+            left_list.append(int(left))
+            right_list.append(int(right))
+
+        left_list.sort()
+        right_list.sort()
+
+        left_count = {}
+
+        current_num = -1
+
+        for number in left_list:
+            if number != current_num:
+                left_count[number] = 0
+                current_num = number
+            
+            left_count[number] += 1
+
+
+        right_count = {}
+
+        current_num = -1
+
+        for number in right_list:
+            if number != current_num:
+                right_count[number] = 0
+                current_num = number
+            
+            right_count[number] += 1
+
+        similarity_scores = [
+
+            left_key * left_count * right_count[left_key]
+
+                for left_key, left_count
+                in left_count.items()
+                if left_key in right_count.keys()
+
+        ]
+
+        attempt = sum(similarity_scores)
 
         return attempt
         
@@ -108,3 +129,5 @@ class Solution:
 
 
 a = Solution()
+a.runPart1()
+a.runPart2()

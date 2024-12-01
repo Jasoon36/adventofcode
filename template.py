@@ -15,7 +15,7 @@ class Solution:
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [l.strip('\n') for l in f]
+            input = [line.strip('\n') for line in f]
 
         return input
     
