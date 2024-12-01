@@ -3,8 +3,8 @@ class Solution:
         Attempt at Day 
     '''
     def __init__(self):
-        self.year           = '2023'
-        self.day            = ''
+        self.year           = '2024'
+        self.day            = '1'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
         self.test1Ans       = []
