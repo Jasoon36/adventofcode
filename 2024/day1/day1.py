@@ -13,7 +13,7 @@ class Solution:
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [line.strip('\n') for line in f]
+            input = [line.strip('\n').split() for line in f]
 
         return input
     
@@ -24,23 +24,30 @@ class Solution:
         else:
             input = self.test
 
-        left_list = []
-        right_list = []
-            
-        for line in input:
-            left, right = line.split()
 
-            left_list.append(int(left))
-            right_list.append(int(right))
+        # list transpose
+        left_list, right_list = list(map(list, zip(*input)))
+        
+        # left_list = []
+        # right_list = []
+            
+        # for line in input:
+        #     left, right = line.split()
+
+        #     left_list.append(int(left))
+        #     right_list.append(int(right))
+
 
         left_list.sort()
         right_list.sort()
 
+
         abs_differences = [
-            abs(left - right)
+            abs(int(left) - int(right))
                 for left, right
                 in zip(left_list, right_list)
         ]
+
 
         attempt = sum(abs_differences)
 
@@ -66,14 +73,8 @@ class Solution:
         else:
             input = self.test
 
-        left_list = []
-        right_list = []
-            
-        for line in input:
-            left, right = line.split()
 
-            left_list.append(int(left))
-            right_list.append(int(right))
+        left_list, right_list = list(map(list, zip(*input)))
 
 
         #### my final solution 
@@ -128,7 +129,7 @@ class Solution:
 
         similarity_scores = [
 
-            left_key * left_count * right_count[left_key]
+            int(left_key) * left_count * right_count[left_key]
 
                 for left_key, left_count
                 in left_count.items()
