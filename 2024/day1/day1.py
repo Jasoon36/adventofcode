@@ -25,17 +25,7 @@ class Solution:
             input = self.test
 
 
-        # list transpose
         left_list, right_list = list(map(list, zip(*input)))
-        
-        # left_list = []
-        # right_list = []
-            
-        # for line in input:
-        #     left, right = line.split()
-
-        #     left_list.append(int(left))
-        #     right_list.append(int(right))
 
 
         left_list.sort()
@@ -77,7 +67,6 @@ class Solution:
         left_list, right_list = list(map(list, zip(*input)))
 
 
-        #### my final solution 
         left_count = {
             left_num : left_list.count(left_num)
                 for left_num
@@ -89,42 +78,6 @@ class Solution:
                 for right_num
                 in set(right_list)
         }
-
-
-        ### using default value of dict.get()
-        # left_count = {}
-        # for number in left_list:
-        #     left_count[number] = left_count.get(number,0) + 1
-
-
-        # right_count = {}
-        # for number in right_list:
-        #     right_count[number] = right_count.get(number,0) + 1
-
-
-        ### first solution
-        # left_count = {}
-
-        # current_num = -1
-
-        # for number in left_list:
-        #     if number != current_num:
-        #         left_count[number] = 0
-        #         current_num = number
-            
-        #     left_count[number] += 1
-
-
-        # right_count = {}
-
-        # current_num = -1
-
-        # for number in right_list:
-        #     if number != current_num:
-        #         right_count[number] = 0
-        #         current_num = number
-            
-        #     right_count[number] += 1
 
 
         similarity_scores = [
