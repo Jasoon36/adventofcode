@@ -25,11 +25,7 @@ class Solution:
             input = self.test
 
 
-        left_list, right_list = list(map(list, zip(*input)))
-
-
-        left_list.sort()
-        right_list.sort()
+        left_list, right_list = list(map(sorted, zip(*input)))
 
 
         abs_differences = [
