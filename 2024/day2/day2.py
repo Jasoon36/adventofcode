@@ -16,8 +16,15 @@ class Solution:
             True,
         ]
         self.part1TestAns   = 2
-        # self.test2Ans       = []
-        # self.part2TestAns   = 0
+        self.test2Ans       = [
+            True,
+            False,
+            False,
+            True,
+            True,
+            True,
+        ]
+        self.part2TestAns   = 4
 
 
     def read(self, filename: str) -> list:
@@ -85,7 +92,35 @@ class Solution:
 
     def solve2(self, line: str) -> int:
 
-        lineAns = 0
+        deltas = [
+            int(i) - int(j)   
+                for i, j 
+                in zip(line[1:], line[:-1])
+        ]
+
+        abs_delta = [abs(delta) for delta in deltas]
+
+        lineAns = (
+            (max(abs_delta) <= 3)
+            and (min(abs_delta) >= 1)
+            and (abs(sum(deltas)) == sum(abs_delta))
+        )
+
+        if not lineAns:
+
+            for ind in range(len(line)):
+                
+                minus_one_level = [
+                    level
+                        for position, level
+                        in enumerate(line)
+                        if position != ind
+                    
+                ]
+
+                if self.solve1(minus_one_level):
+                    lineAns = True
+                    break
 
         return lineAns
 
@@ -109,7 +144,7 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        attempt = sum([self.solve2(line) for line in input])
 
         return attempt
         
@@ -128,3 +163,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.runPart2()
