@@ -100,19 +100,25 @@ class Solution:
 
         if not lineAns:
 
-            for ind in range(len(line)):
+            lineAns = any([
+                self.solve1(line[:pos] + line[pos+1:])
+                    for pos 
+                    in range(len(line))
+            ])
 
-                minus_one_level = [
-                    level
-                        for position, level
-                        in enumerate(line)
-                        if position != ind
+            # for ind in range(len(line)):
+
+            #     minus_one_level = [
+            #         level
+            #             for position, level
+            #             in enumerate(line)
+            #             if position != ind
                     
-                ]
+            #     ]
 
-                if self.solve1(minus_one_level):
-                    lineAns = True
-                    break
+            #     if self.solve1(minus_one_level):
+            #         lineAns = True
+            #         break
 
         return lineAns
 
