@@ -42,15 +42,7 @@ class Solution:
                 in zip(line[1:], line[:-1])
         ]
 
-        abs_delta = [abs(delta) for delta in deltas]
-
-        lineAns = (
-            (max(abs_delta) <= 3)
-            and (min(abs_delta) >= 1)
-            and (abs(sum(deltas)) == sum(abs_delta))
-        )
-
-        return lineAns
+        return set(deltas) <= {1,2,3} or set(deltas) <= {-3,-2,-1}
 
     def testSolution1(self) -> bool:
 
@@ -109,7 +101,7 @@ class Solution:
         if not lineAns:
 
             for ind in range(len(line)):
-                
+
                 minus_one_level = [
                     level
                         for position, level
