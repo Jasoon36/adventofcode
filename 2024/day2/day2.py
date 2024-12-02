@@ -106,19 +106,12 @@ class Solution:
                     in range(len(line))
             ])
 
-            # for ind in range(len(line)):
+            for ind in range(len(line)):
 
-            #     minus_one_level = [
-            #         level
-            #             for position, level
-            #             in enumerate(line)
-            #             if position != ind
-                    
-            #     ]
+                lineAns = self.solve1(line[:ind] + line[ind+1:])
 
-            #     if self.solve1(minus_one_level):
-            #         lineAns = True
-            #         break
+                if lineAns:
+                    return lineAns
 
         return lineAns
 
