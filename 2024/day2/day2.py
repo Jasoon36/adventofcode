@@ -1,28 +1,47 @@
 class Solution:
     '''
-        Attempt at Day 
+        Attempt at Day 2
     '''
     def __init__(self):
         self.year           = '2024'
-        self.day            = ''
+        self.day            = '2'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
-        self.test1Ans       = []
-        self.test2Ans       = []
-        self.part1TestAns   = 0
-        self.part2TestAns   = 0
+        self.test1Ans       = [
+            True,
+            False,
+            False,
+            False,
+            False,
+            True,
+        ]
+        self.part1TestAns   = 2
+        # self.test2Ans       = []
+        # self.part2TestAns   = 0
 
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [line.strip('\n') for line in f]
+            input = [line.strip('\n').split() for line in f]
 
         return input
     
     
     def solve1(self, line: str) -> int:
 
-        lineAns = 0
+        deltas = [
+            int(i) - int(j)   
+                for i, j 
+                in zip(line[1:], line[:-1])
+        ]
+
+        abs_delta = [abs(delta) for delta in deltas]
+
+        lineAns = (
+            (max(abs_delta) <= 3)
+            and (min(abs_delta) >= 1)
+            and (abs(sum(deltas)) == sum(abs_delta))
+        )
 
         return lineAns
 
@@ -46,7 +65,7 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        attempt = sum([self.solve1(line) for line in input])
 
         return attempt
         
@@ -108,3 +127,4 @@ class Solution:
 
 
 a = Solution()
+a.runPart1()
