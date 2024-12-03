@@ -7,12 +7,12 @@ class Solution:
         self.day            = '3'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
-        self.part1TestAns  = 322
-        self.part2TestAns  = 209
+        self.part1TestAns   = 161 + 161
+        self.part2TestAns   = 161 + 48
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = ''.join([line.strip('\n') for line in f])
+            input = f.read()
 
         return input
     
@@ -22,14 +22,14 @@ class Solution:
         lineAns = 0
         
         for mul_start in line.split('mul(')[1:]:
-            instruction = mul_start.split(')')[0]
+            instruction = mul_start.split(')', maxsplit = 1)[0]
 
             try:
                 first_number, second_number = instruction.split(',', maxsplit = 1)
-            except:
+            except ValueError:
                 continue
 
-            if all([char.isdigit() for char in first_number] + [char.isdigit() for char in second_number]):
+            if (first_number.isdigit()) and (second_number.isdigit()):
                 lineAns += int(first_number) * int(second_number)
 
         return lineAns
@@ -64,7 +64,7 @@ class Solution:
         lineAns = 0
 
         for sub_line in line.split('do()'):
-            lineAns += self.solve1(sub_line.split("don't()")[0])
+            lineAns += self.solve1(sub_line.split("don't()", maxsplit = 1)[0])
 
         return lineAns
     
@@ -93,6 +93,5 @@ class Solution:
 
 
 a = Solution()
-# a.testSolution1()
 a.runPart1()
 a.runPart2()
