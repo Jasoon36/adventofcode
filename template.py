@@ -56,7 +56,7 @@ class Solution:
             part1TestAttempt = self.part1()
             assert part1TestAttempt == self.part1TestAns
         except AssertionError as e:
-            e.add_note(f'part 2 test ans {part1TestAttempt} is not {self.part1TestAns}')
+            e.add_note(f'part 1 test ans {part1TestAttempt} is not {self.part1TestAns}')
             raise e
         
         realAttempt = True
