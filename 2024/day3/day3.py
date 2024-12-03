@@ -7,15 +7,12 @@ class Solution:
         self.day            = '3'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
-        self.test1Ans       = [161, 161]
-        self.part1TestAns   = 322
-        self.test2Ans       = [161, 48]
-        self.part2TestAns   = 209
-
+        self.part1TestAns  = 322
+        self.part2TestAns  = 209
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [line.strip('\n') for line in f]
+            input = ''.join([line.strip('\n') for line in f])
 
         return input
     
@@ -36,19 +33,6 @@ class Solution:
                 lineAns += int(first_number) * int(second_number)
 
         return lineAns
-
-    def testSolution1(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve1(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part1(self, realAttempt = False) -> int:
 
@@ -57,7 +41,7 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([self.solve1(line) for line in input])
+        attempt = self.solve1(input)
 
         return attempt
         
@@ -80,23 +64,9 @@ class Solution:
         lineAns = 0
 
         for sub_line in line.split('do()'):
-            # print(sub_line.split("don't()")[0])
             lineAns += self.solve1(sub_line.split("don't()")[0])
 
         return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part2(self, realAttempt = False) -> int:
 
@@ -105,7 +75,7 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([self.solve2(line) for line in input])
+        attempt = self.solve2(input)
 
         return attempt
         
