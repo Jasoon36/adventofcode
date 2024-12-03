@@ -23,51 +23,17 @@ class Solution:
     def solve1(self, line: str) -> int:
 
         lineAns = 0
-        pos = 0
-        line_length = len(line)
+        
+        for mul_start in line.split('mul(')[1:]:
+            instruction = mul_start.split(')')[0]
 
-        while pos < line_length:
-            if line[pos:pos+4] == 'mul(':
-                pos += 4
-                first_number = ''
-                second_number = ''
-                first_valid = True
+            try:
+                first_number, second_number = instruction.split(',', maxsplit = 1)
+            except:
+                continue
 
-                while pos < line_length:
-                    if line[pos].isdigit():
-                        first_number += line[pos]
-                        pos += 1
-                    elif line[pos] == ',':
-                        pos += 1
-                        break
-                    else:
-                        pos += 1
-                        first_valid = False
-                        break
-                
-                if first_valid:
-
-                    second_valid = True
-
-                    while pos < line_length:
-                        if line[pos].isdigit():
-                            second_number += line[pos]
-                            pos += 1
-                        elif line[pos] == ')':
-                            pos += 1
-                            break
-                        else:
-                            pos += 1
-                            second_valid = False
-                            break
-                
-                    if second_valid:
-
-                        lineAns += int(first_number) * int(second_number)
-
-            else:
-                pos += 1
-
+            if all([char.isdigit() for char in first_number] + [char.isdigit() for char in second_number]):
+                lineAns += int(first_number) * int(second_number)
 
         return lineAns
 
@@ -112,69 +78,10 @@ class Solution:
     def solve2(self, line: str) -> int:
 
         lineAns = 0
-        pos = 0
-        line_length = len(line)
-        do = True
 
-        while pos < line_length:
-
-            if do:
-
-                if (line[pos:pos+7] == "don\'t()"):
-                    pos += 7
-                    do = False
-
-
-                elif (line[pos:pos+4] == 'mul('):
-                    pos += 4
-                    first_number = ''
-                    second_number = ''
-                    first_valid = True
-
-                    while pos < line_length:
-                        if line[pos].isdigit():
-                            first_number += line[pos]
-                            pos += 1
-                        elif line[pos] == ',':
-                            pos += 1
-                            break
-                        else:
-                            pos += 1
-                            first_valid = False
-                            break
-                    
-                    if first_valid:
-
-                        second_valid = True
-
-                        while pos < line_length:
-                            if line[pos].isdigit():
-                                second_number += line[pos]
-                                pos += 1
-                            elif line[pos] == ')':
-                                pos += 1
-                                break
-                            else:
-                                pos += 1
-                                second_valid = False
-                                break
-                    
-                        if second_valid:
-
-                            print(first_number, second_number)
-
-                            lineAns += int(first_number) * int(second_number)
-
-                else:
-                    pos += 1
-            
-            elif (line[pos:pos+4] == 'do()'):
-                pos += 4
-                do = True
-
-            else:
-                pos += 1
-
+        for sub_line in line.split('do()'):
+            # print(sub_line.split("don't()")[0])
+            lineAns += self.solve1(sub_line.split("don't()")[0])
 
         return lineAns
 
@@ -216,5 +123,6 @@ class Solution:
 
 
 a = Solution()
+# a.testSolution1()
 a.runPart1()
 a.runPart2()
