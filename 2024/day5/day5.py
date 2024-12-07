@@ -101,11 +101,20 @@ class Solution:
 
 
     def solve2(self, page_numbers: str, rules: dict) -> list:
+        '''
+        it reads like insertion sort and sorts the list in place
+        i = 1 (0th number is a freebie)
+        for the ith element
+            check from the 0th to i-1th element if it should be before it
+                (in order so it finds the earliest number to be before)
+                if yes pop the ith element out and insert before the number it should be before (and you can stop checking now)
+            i + 1
+        '''
 
         if self.solve1(page_numbers, rules):
             return []
         
-        pos = 0
+        pos = 1
 
         n = len(page_numbers)
 
@@ -114,15 +123,12 @@ class Solution:
             numbers_to_be_before = rules.get(page_numbers[pos], [])
 
             if numbers_to_be_before:
-                not_changed = True
                 for ind, pagenum in enumerate(page_numbers[:pos]):
                     if pagenum in numbers_to_be_before:
                         page_numbers = page_numbers[:ind] + [page_numbers[pos]] + page_numbers[ind:pos] + page_numbers[pos+1:]
-                        not_changed = False
                         break
 
-                if not_changed:
-                    pos += 1
+                pos += 1
             else:
                 pos += 1
 
