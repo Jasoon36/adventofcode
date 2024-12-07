@@ -8,7 +8,7 @@ class Solution:
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
         self.part1TestAns   = 41
-        self.part2TestAns   = 0
+        self.part2TestAns   = 6
         self.turnRight      = {
             'up'    : 'right',
             'right' : 'down',
@@ -69,9 +69,10 @@ class Solution:
         
         # only turns if going forward is NG
         look_at_next_pos = self.look(area, next_line_ind, next_str_ind)
-        if look_at_next_pos == '#':
+        while look_at_next_pos == '#':
             dir = self.turnRight[dir]
             next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
+            look_at_next_pos = self.look(area, next_line_ind, next_str_ind)
             
         return next_line_ind, next_str_ind, dir, in_bounds
     
@@ -92,21 +93,17 @@ class Solution:
     
     def solve1(self, area: list, line_ind: int, str_ind: int, dir: str, vectors: list):
 
-       
         in_area = True
 
         while in_area:
+            vectors.append((line_ind, str_ind, dir))
 
             # take action and return new state
             area, line_ind, str_ind, dir, in_area, looped = self.takeAction1(area, line_ind, str_ind, dir, vectors)
-
-            # print(line_ind, str_ind, dir)
+            
             if looped:
                 break
             
-            vectors.append((line_ind, str_ind, dir))
-
-            print(line_ind, str_ind, dir, in_area, looped)
 
         return area, looped
 
@@ -156,6 +153,48 @@ class Solution:
         print(self.part1(realAttempt))
 
 
+
+    
+    def solve2(self, area: list, line_ind: int, str_ind: int, dir: str, vectors: list):
+
+        in_area = True
+        new_obstacle_positions = [] # it took me forever to realise I was checking the same new obstacle more than once
+        new_obstacles_looping = 0
+
+        step_count = 0
+
+        while in_area:
+
+            # take action and return new state
+            vectors.append((line_ind, str_ind, dir))
+
+            area_copy = [[_ for _ in first_layer] for first_layer in area]
+            line_ind_copy = line_ind
+            str_ind_copy = str_ind
+            dir_copy = dir
+            vectors_copy = vectors.copy()
+
+            area, line_ind, str_ind, dir, in_area, _ = self.takeAction1(area, line_ind, str_ind, dir, vectors)
+
+            if not in_area:
+                break
+
+            if (line_ind, str_ind) not in new_obstacle_positions:
+
+                new_obstacle_positions.append((line_ind, str_ind))
+
+                area_copy[line_ind][str_ind] = '#'
+
+                _, looped2 = self.solve1(area_copy, line_ind_copy, str_ind_copy, dir_copy, vectors_copy)
+                new_obstacles_looping += looped2
+
+            if step_count % 100 == 0:
+                print(step_count, new_obstacles_looping) 
+            
+            step_count += 1
+            
+
+        return area, new_obstacles_looping
     
     
     def part2(self, realAttempt = False) -> int:
@@ -175,43 +214,7 @@ class Solution:
         dir = 'up'
         vectors = []
 
-        ## okay now brute force this
-
-        in_area = True
-
-        new_obstacles_looping = 0
-
-        no_added_obstacle_map = input
-
-        while in_area:
-
-            # add an obstacle only if next step is in bounds
-            next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
-            in_bounds = self.checkInBounds(no_added_obstacle_map, next_line_ind, next_str_ind)
-
-            if in_bounds:
-                look_at_next_pos = self.look(no_added_obstacle_map, next_line_ind, next_str_ind)
-
-                # add obstacle and check if it loops
-                if look_at_next_pos != '#':
-                    new_map = no_added_obstacle_map
-                    new_map[next_line_ind][next_str_ind] = '#'
-                    new_vectors = vectors
-
-                    new_map_travelled, new_map_looped = self.solve1(new_map, line_ind, str_ind, dir, new_vectors)
-
-                    new_obstacles_looping += new_map_looped
-
-
-                no_added_obstacle_map, line_ind, str_ind, dir, in_area, looped = self.takeAction1(no_added_obstacle_map, line_ind, str_ind, dir, vectors)
-                
-                vectors.append((line_ind, str_ind, dir))
-
-
-            # next step is out of bounds so we stop adding obstacles
-            else:
-                break
-            print(new_obstacles_looping)
+        _, new_obstacles_looping = self.solve2(input, line_ind, str_ind, dir, vectors)
 
         return new_obstacles_looping
         
@@ -229,5 +232,5 @@ class Solution:
 
 
 a = Solution()
-a.runPart1()
-# a.runPart2()
+# a.runPart1()
+a.runPart2()
