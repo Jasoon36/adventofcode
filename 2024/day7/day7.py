@@ -46,23 +46,22 @@ class Solution:
         numbers = [int(num) for num in _.split()]
 
         answer = int(answer)
-        mult_or_add = [numbers[0]]
+        mult_or_add = [answer]
 
-        for num in numbers[1:]:
+        for num in reversed(numbers[1:]):
             mult_or_add = [
-                x 
-                    for calc 
+                calc
+                    for x 
                     in mult_or_add
-                    if (x := calc + num) <= answer
+                    if (calc := x - num) >= numbers[0]
             ] + [
-                x 
-                    for calc 
+                x // num
+                    for x 
                     in mult_or_add
-                    if (x := calc * num) <= answer
+                    if x % num == 0
             ]
 
-
-        if answer in mult_or_add:
+        if numbers[0] in mult_or_add:
             return answer
 
         return 0
@@ -111,29 +110,27 @@ class Solution:
         numbers = [int(num) for num in _.split()]
 
         answer = int(answer)
+        mult_or_add_or_conc = [answer]
 
-        mult_or_add_or_conc = [numbers[0]]
-
-        for num in numbers[1:]:
+        for num in reversed(numbers[1:]):
             mult_or_add_or_conc = [
-                x 
-                    for calc 
+                calc
+                    for x 
                     in mult_or_add_or_conc
-                    if (x := calc + num) <= answer
+                    if (calc := x - num) >= numbers[0]
             ] + [
-                x 
-                    for calc 
-                    in mult_or_add_or_conc 
-                    if (x := calc * num) <= answer
+                x // num
+                    for x 
+                    in mult_or_add_or_conc
+                    if x % num == 0
             ] + [
-                x 
-                    for calc 
+                int(x_str[:-n]) 
+                    for x 
                     in mult_or_add_or_conc 
-                    if (x := int(str(calc) + str(num))) <= answer
+                    if ((x_str := str(x))[-(n :=len(str(num))):] == str(num)) and (len(x_str) > n)
             ]
-
-
-        if answer in mult_or_add_or_conc:
+        
+        if numbers[0] in mult_or_add_or_conc:
             return answer
 
         return 0
@@ -176,5 +173,7 @@ class Solution:
 
 
 a = Solution()
+# a.testSolution1()
 a.runPart1()
+# a.testSolution2()
 a.runPart2()
