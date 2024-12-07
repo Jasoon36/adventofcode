@@ -39,6 +39,7 @@ Little things in base python I've never used till now:
 - default value of dict.get() (prefer this over defaultdict)
 - transposing a list of lists (always had numpy)
 - set comparisons
+- := walrus operator (handy)
 
 Things I've seen but haven't had a chance to try yet:
 
