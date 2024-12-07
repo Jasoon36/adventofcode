@@ -23,57 +23,51 @@ class Solution:
 
         return input
     
-    def look(self, line_ind: int, str_ind: int, dir: str):
+
+    
+    def getStep(self, next_line_ind: int, next_str_ind: int, dir: str) -> tuple: 
+
+            if dir == 'up':
+                next_line_ind = next_line_ind + -1
+            elif dir == 'down':
+                next_line_ind = next_line_ind + 1
+            elif dir == 'right':
+                next_str_ind = next_str_ind + 1
+            elif dir == 'left':
+                next_str_ind = next_str_ind + -1
+
+            return next_line_ind, next_str_ind
+    
+    def getAction(self, map: list, line_ind: int, str_ind: int, dir: str):
+
+        next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
+        try:
+            look_at_next_pos = map[next_line_ind][next_str_ind]
+        except IndexError:
+            # out of map
+            return next_line_ind, next_str_ind, dir, False
+
+        # only turns if going forward is NG
+        # and will turn twice if right is blocked too - maybe it shouldn't
+        while look_at_next_pos == '#':
+            dir = self.turnRight[dir]
+            next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
+            try:
+                look_at_next_pos = map[next_line_ind][next_str_ind]
+            except IndexError:
+                # out of map
+                return next_line_ind, next_str_ind, dir, False
+
+        return next_line_ind, next_str_ind, dir, True
+    
+    def takeAction(self, map: list, line_ind: int, str_ind: int, dir: str):
         
-        next_line_ind = line_ind
-        next_str_ind = str_ind
-
-        if dir == 'up':
-            next_line_ind = line_ind + -1
-        elif dir == 'down':
-            next_line_ind = line_ind + 1
-        elif dir == 'right':
-            next_str_ind = str_ind + 1
-        elif dir == 'left':
-            next_str_ind = str_ind + -1
-
-        return next_line_ind, next_str_ind
-    
-    def step(self, map: list, pos: tuple, dir: str, in_area = True):
-        
-    
-    
-    def solve1(self, map: list, pos: tuple, dir: str, in_area = True) -> list:
-
-        line_ind, str_ind = pos
-
+        # set current position to X
         map[line_ind] = map[line_ind][:str_ind] + 'X' + map[line_ind][str_ind+1:]
 
+        next_line_ind, next_str_ind, dir, in_bounds = self.getAction(map, line_ind, str_ind, dir)
 
-        try:
-            next_line_ind, next_str_ind = self.look(line_ind, str_ind, dir)
-            look_at_next_pos = map[next_line_ind][next_str_ind]
-
-            while look_at_next_pos == '#':
-                dir = self.turnRight[dir]
-                next_line_ind, next_str_ind = self.look(line_ind, str_ind, dir)
-                look_at_next_pos = map[next_line_ind][next_str_ind]
-
-            while look_at_next_pos !
-
-            line_ind = next_line_ind
-            str_ind = next_str_ind
-
-        except IndexError:
-            in_area = False
-            return map
-
-
-        if in_area:
-
-            return self.solve1(map, (line_ind, str_ind), dir, in_area)
-            
-        return map
+        return map, next_line_ind, next_str_ind, dir, in_bounds
     
     def part1(self, realAttempt = False) -> int:
 
@@ -84,13 +78,34 @@ class Solution:
         
         for ind, line in enumerate(input):
             if line.find('^') > -1:
-                pos = (ind, line.find('^'))
+                line_ind = ind
+                str_ind = line.find('^')
                 dir = 'up'
+                global in_area # except changes the scope why dear santa why
                 in_area = True
                 break
 
+        
 
-        travelled_map = self.solve1(input, pos, dir, in_area)
+
+        while in_area:
+
+            prev_line_ind = line_ind
+            prev_str_ind = str_ind
+            
+            # take action and return new state
+            input, line_ind, str_ind, dir, in_area = self.takeAction(input, line_ind, str_ind, dir)
+
+            print(line_ind, str_ind, in_area)
+
+            if (prev_line_ind == line_ind) and (prev_str_ind == str_ind):
+                break
+            elif line_ind < 0:
+                break
+
+
+
+        travelled_map = input
 
         visited_positions = sum([
             sum([
