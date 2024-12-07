@@ -19,12 +19,11 @@ class Solution:
 
     def read(self, filename: str) -> list:
         with open(f'./{self.year}/day{self.day}/{filename}') as f:
-            input = [line.strip('\n') for line in f]
+            input = [list(line.strip('\n')) for line in f]
 
         return input
     
 
-    
     def getStep(self, next_line_ind: int, next_str_ind: int, dir: str) -> tuple: 
 
             if dir == 'up':
@@ -38,36 +37,79 @@ class Solution:
 
             return next_line_ind, next_str_ind
     
-    def getAction(self, map: list, line_ind: int, str_ind: int, dir: str):
+    def checkInBounds(self, area: int, next_line_ind: int, next_str_ind: int) -> bool:
+
+        if next_line_ind < 0:
+            return False
+        
+        if next_line_ind == len(area):
+            return False
+        
+        if next_str_ind < 0:
+            return False
+        
+        if next_str_ind == len(area[0]):
+            return False
+
+        return True
+    
+    def look(self, area: list, next_line_ind: int, next_str_ind: int) -> str:
+        
+        return area[next_line_ind][next_str_ind]
+
+
+    def getAction1(self, area: list, line_ind: int, str_ind: int, dir: str):
 
         next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
-        try:
-            look_at_next_pos = map[next_line_ind][next_str_ind]
-        except IndexError:
-            # out of map
-            return next_line_ind, next_str_ind, dir, False
+        in_bounds = self.checkInBounds(area, next_line_ind, next_str_ind)
 
+        # early return if we step out
+        if not in_bounds:
+            return next_line_ind, next_str_ind, dir, in_bounds
+        
         # only turns if going forward is NG
-        # and will turn twice if right is blocked too - maybe it shouldn't
-        while look_at_next_pos == '#':
+        look_at_next_pos = self.look(area, next_line_ind, next_str_ind)
+        if look_at_next_pos == '#':
             dir = self.turnRight[dir]
             next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
-            try:
-                look_at_next_pos = map[next_line_ind][next_str_ind]
-            except IndexError:
-                # out of map
-                return next_line_ind, next_str_ind, dir, False
-
-        return next_line_ind, next_str_ind, dir, True
+            
+        return next_line_ind, next_str_ind, dir, in_bounds
     
-    def takeAction(self, map: list, line_ind: int, str_ind: int, dir: str):
+    def takeAction1(self, area: list, line_ind: int, str_ind: int, dir: str, vectors: False):
+        
+        looped = False
         
         # set current position to X
-        map[line_ind] = map[line_ind][:str_ind] + 'X' + map[line_ind][str_ind+1:]
+        area[line_ind][str_ind] = 'X'
 
-        next_line_ind, next_str_ind, dir, in_bounds = self.getAction(map, line_ind, str_ind, dir)
+        # get new position, direction, and if in bounds
+        next_line_ind, next_str_ind, dir, in_bounds = self.getAction1(area, line_ind, str_ind, dir)
 
-        return map, next_line_ind, next_str_ind, dir, in_bounds
+        if (next_line_ind, next_str_ind, dir) in vectors:
+            looped = True
+
+        return area, next_line_ind, next_str_ind, dir, in_bounds, looped
+    
+    def solve1(self, area: list, line_ind: int, str_ind: int, dir: str, vectors: list):
+
+       
+        in_area = True
+
+        while in_area:
+
+            # take action and return new state
+            area, line_ind, str_ind, dir, in_area, looped = self.takeAction1(area, line_ind, str_ind, dir, vectors)
+
+            # print(line_ind, str_ind, dir)
+            if looped:
+                break
+            
+            vectors.append((line_ind, str_ind, dir))
+
+            print(line_ind, str_ind, dir, in_area, looped)
+
+        return area, looped
+
     
     def part1(self, realAttempt = False) -> int:
 
@@ -76,36 +118,17 @@ class Solution:
         else:
             input = self.test
         
-        for ind, line in enumerate(input):
-            if line.find('^') > -1:
-                line_ind = ind
-                str_ind = line.find('^')
-                dir = 'up'
-                global in_area # except changes the scope why dear santa why
-                in_area = True
+        for line_ind, line in enumerate(input):
+            for str_ind, char in enumerate(line):
+                if char == '^':
+                    break
+            if char == '^':
                 break
 
-        
+        dir = 'up'
+        vectors = []
 
-
-        while in_area:
-
-            prev_line_ind = line_ind
-            prev_str_ind = str_ind
-            
-            # take action and return new state
-            input, line_ind, str_ind, dir, in_area = self.takeAction(input, line_ind, str_ind, dir)
-
-            print(line_ind, str_ind, in_area)
-
-            if (prev_line_ind == line_ind) and (prev_str_ind == str_ind):
-                break
-            elif line_ind < 0:
-                break
-
-
-
-        travelled_map = input
+        travelled_map, _ = self.solve1(input, line_ind, str_ind, dir, vectors)
 
         visited_positions = sum([
             sum([
@@ -117,7 +140,6 @@ class Solution:
                 for line 
                 in travelled_map
         ])
-
 
         return visited_positions
         
@@ -134,25 +156,7 @@ class Solution:
         print(self.part1(realAttempt))
 
 
-
-    def solve2(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
+    
     
     def part2(self, realAttempt = False) -> int:
 
@@ -160,10 +164,56 @@ class Solution:
             input = self.prod
         else:
             input = self.test
+        
+        for line_ind, line in enumerate(input):
+            for str_ind, char in enumerate(line):
+                if char == '^':
+                    break
+            if char == '^':
+                break
 
-        attempt = sum([1 for line in input])
+        dir = 'up'
+        vectors = []
 
-        return attempt
+        ## okay now brute force this
+
+        in_area = True
+
+        new_obstacles_looping = 0
+
+        no_added_obstacle_map = input
+
+        while in_area:
+
+            # add an obstacle only if next step is in bounds
+            next_line_ind, next_str_ind = self.getStep(line_ind, str_ind, dir)
+            in_bounds = self.checkInBounds(no_added_obstacle_map, next_line_ind, next_str_ind)
+
+            if in_bounds:
+                look_at_next_pos = self.look(no_added_obstacle_map, next_line_ind, next_str_ind)
+
+                # add obstacle and check if it loops
+                if look_at_next_pos != '#':
+                    new_map = no_added_obstacle_map
+                    new_map[next_line_ind][next_str_ind] = '#'
+                    new_vectors = vectors
+
+                    new_map_travelled, new_map_looped = self.solve1(new_map, line_ind, str_ind, dir, new_vectors)
+
+                    new_obstacles_looping += new_map_looped
+
+
+                no_added_obstacle_map, line_ind, str_ind, dir, in_area, looped = self.takeAction1(no_added_obstacle_map, line_ind, str_ind, dir, vectors)
+                
+                vectors.append((line_ind, str_ind, dir))
+
+
+            # next step is out of bounds so we stop adding obstacles
+            else:
+                break
+            print(new_obstacles_looping)
+
+        return new_obstacles_looping
         
     def runPart2(self):
 
@@ -180,3 +230,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+# a.runPart2()
