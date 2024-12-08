@@ -6,6 +6,8 @@ Completion Tracker:
 
 |Year|Day|Part|Completion Date|Time|Rank|
 |-|-|-|-|-|-|
+| 2024 | 8 | 2 | 2024-12-08 | 09:43:37 | 28564 |
+| 2024 | 8 | 1 | 2024-12-08 | 09:20:56 | 30672 |
 | 2024 | 7 | 2 | 2024-12-07 | 14:16:44 | 39207 |
 | 2024 | 7 | 1 | 2024-12-07 | 13:43:23 | 41598 |
 | 2024 | 6 | 2 | 2024-12-07 | >24h | 49642 |
@@ -40,8 +42,9 @@ Little things in base python I've never used till now:
 - transposing a list of lists (always had numpy)
 - set comparisons
 - := walrus operator (handy)
+- use complex numbers as coordinates
+- set operators like | and &
 
 Things I've seen but haven't had a chance to try yet:
 
-- use complex numbers like coordinates
-- operator | and |= with dictionaries (update and merge)
+- operator | and |= with dictionaries (merge and update)
