@@ -5,7 +5,7 @@ class Solution:
         Got back from chimaek 1 shot of soju for each error or incorrect answer and a commit
         And one shot to start
 
-        Shot tracker = 1
+        Shot tracker = 2
     '''
     def __init__(self):
         self.year           = '2024'
@@ -32,8 +32,8 @@ class Solution:
             for stone in stones:
                 if stone == 0:
                     new_stones.append(1)
-                elif stone % 2 == 0:
-                    half_length = len(str(stone)) / 2
+                elif (n := len(str(stone))) == 0:
+                    half_length = n / 2
 
                     new_stones.extend(divmod(stone, 10 ** half_length))
                 else:
