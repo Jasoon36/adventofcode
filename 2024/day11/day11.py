@@ -5,7 +5,7 @@ class Solution:
         Got back from chimaek 1 shot of soju for each error or incorrect answer and a commit
         And one shot to start
 
-        Shot tracker = 4
+        Shot tracker = 5
     '''
     def __init__(self):
         self.year           = '2024'
@@ -25,7 +25,7 @@ class Solution:
     
     def solve1(self, stones: list) -> int:
 
-        blinks = 6
+        blinks = 25
         for _ in range(blinks):
             new_stones = []
 
