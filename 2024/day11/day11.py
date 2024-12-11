@@ -5,7 +5,7 @@ class Solution:
         Got back from chimaek 1 shot of soju for each error or incorrect answer and a commit
         And one shot to start
 
-        Shot tracker = 3
+        Shot tracker = 4
     '''
     def __init__(self):
         self.year           = '2024'
@@ -25,14 +25,14 @@ class Solution:
     
     def solve1(self, stones: list) -> int:
 
-        blinks = 25
+        blinks = 6
         for _ in range(blinks):
             new_stones = []
 
             for stone in stones:
                 if stone == 0:
                     new_stones.append(1)
-                elif (n := len(str(stone))) % 2 == 0:
+                elif (n := len(str(int(stone)))) % 2 == 0:
                     half_length = n / 2
 
                     new_stones.extend(divmod(stone, 10 ** half_length))
