@@ -13,7 +13,6 @@ class Solution:
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
         self.part1TestAns   = 55312
-        self.part2TestAns   = 0
 
 
     def read(self, filename: str) -> list:
@@ -23,9 +22,8 @@ class Solution:
         return input
     
     
-    def solve1(self, stones: list) -> int:
+    def solve1(self, stones: list, blinks = 25) -> int:
 
-        blinks = 25
         for _ in range(blinks):
             new_stones = []
 
@@ -71,25 +69,46 @@ class Solution:
         print(self.part1(realAttempt))
 
 
+    def getNewStone(self, stone: int) -> int:
 
-    def solve2(self, line: str) -> int:
+        if stone == 0:
+            return [1]
+        elif (n := len(str(int(stone)))) % 2 == 0:
+            half_length = n / 2
 
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
+            return divmod(stone, 10 ** half_length)
+        else:
+            return [stone * 2024]
         
-        print('keep going')
-        return True
+    def solve2(self, stones: list, blinks = 75) -> int:
+
+        stone_map = {
+            stone : 1
+                for stone
+                in stones
+        }
+
+        for _ in range(blinks):
+            new_stones_map = {}
+
+            for stone, number_of_stones in stone_map.items():
+                if stone == 0:
+                    new_stones_map[1] = new_stones_map.get(1, 0) + number_of_stones
+                elif (n := len(str(stone))) % 2 == 0:
+                    half_length = n / 2
+
+                    first_num, second_num = tuple(map(int, divmod(stone, 10 ** half_length)))
+                    new_stones_map[first_num] = new_stones_map.get(first_num, 0) + number_of_stones
+                    new_stones_map[second_num] = new_stones_map.get(second_num, 0) + number_of_stones
+                else:
+                    new_stones_map[stone * 2024] = new_stones_map.get(stone * 2024, 0) + number_of_stones
+
+
+            stone_map = new_stones_map.copy()
+
+        total_number_of_stones = sum(stone_map.values())
+
+        return total_number_of_stones
     
     def part2(self, realAttempt = False) -> int:
 
@@ -98,18 +117,20 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        stones = [int(number) for number in input.split()]
+
+        attempt = self.solve2(stones, 75)
 
         return attempt
         
     def runPart2(self):
 
-        try:
-            part2TestAttempt = self.part2()
-            assert part2TestAttempt == self.part2TestAns
-        except AssertionError as e:
-            e.add_note(f'part 2 test ans {part2TestAttempt} is not {self.part2TestAns}')
-            raise e
+        # try:
+        #     part2TestAttempt = self.part2()
+        #     assert part2TestAttempt == self.part2TestAns
+        # except AssertionError as e:
+        #     e.add_note(f'part 2 test ans {part2TestAttempt} is not {self.part2TestAns}')
+        #     raise e
         
         realAttempt = True
         print(self.part2(realAttempt))
@@ -117,3 +138,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.runPart2()
