@@ -9,8 +9,8 @@ class Solution:
         self.test           = self.read('input_test.txt')
         self.test1Ans       = [4,6,3,5,6,3,5,2,1,0]
         self.test2Ans       = []
-        self.part1TestAns   = '4635635210'
-        self.part2TestAns   = 0
+        self.part1TestAns   = '4,6,3,5,6,3,5,2,1,0'
+        self.part2TestAns   = 117440
 
 
     def read(self, filename: str) -> list:
@@ -20,18 +20,56 @@ class Solution:
         return input
     
     
-    def solve1(self, input: list[str]) -> int:
+    def solve1(self, a, b, c, program: list[int]) -> int:
 
-        register = {
-            k : int(input[i].split(': ')[1])
-                for i, k in enumerate('ABC')
-        }
+        operating = True
+        out = []
 
-        program = [int(s) for s in input[-1].split(': ')[1].split(',')]
+        pointer = 0
 
-        
+        while operating:
 
-        return lineAns
+            # get opcode, literal operand, and combo operand
+            try:
+                opcode = program[pointer]
+                operand = program[pointer + 1]
+            except IndexError as e:
+                break
+
+            if operand < 4:
+                comboOperand = operand
+            elif operand == 4:
+                comboOperand = a
+            elif operand == 5:
+                comboOperand = b
+            elif operand == 6:
+                comboOperand = c
+
+            
+            # perform instruction    
+            if opcode == 0:
+                a = a // (2**comboOperand)
+            elif opcode == 1:
+                b = b ^ operand
+            elif opcode == 2:
+                b = comboOperand % 8
+            elif opcode == 3:
+                if a != 0:
+                    pointer = operand
+                    continue
+            elif opcode == 4:
+                b = b ^ c
+            elif opcode == 5:
+                out.append(comboOperand % 8)
+            elif opcode == 6:
+                b = a // (2**comboOperand)
+            elif opcode == 7:
+                c = a // (2**comboOperand)
+            
+            pointer += 2
+            
+
+        return out
     
     def part1(self, realAttempt = False) -> int:
 
@@ -40,9 +78,16 @@ class Solution:
         else:
             input = self.test
 
-        attempt = self.solve1(input)
+        a = int(input[0].split(': ')[1])
+        b = int(input[1].split(': ')[1])
+        c = int(input[2].split(': ')[1])
 
-        return attempt
+
+        program = [int(s) for s in input[-1].split(': ')[1].split(',')]
+
+        attempt = self.solve1(a, b, c, program)
+
+        return ','.join(map(str, attempt))
         
     def runPart1(self):
 
@@ -58,11 +103,44 @@ class Solution:
 
 
 
-    def solve2(self, line: str) -> int:
+    def solve2(self, a, b, c, program: list[int]) -> int:
 
-        lineAns = 0
+        # figured out what it did, half helped
+        # while simA != 0:
+        #     out.append(
+        #         (
+        #             simA // (
+        #                 2 ** (
+        #                     (simAmod8bitxor1 := (simA % 8) ^ 1)
+        #                 )
+        #             ) 
+        #         ) ^ ( simAmod8bitxor1 ^ 4)
+        #     )
+        #     simA = simA // 8
+        
+        # each output could have potential 8 different correct values of A
+        # so multiply each potential value by 8 and check it works
+        # start from right to left
+        # because the A is // by 8 each time, the first value should be between 0 and 7
 
-        return lineAns
+        # a += 8
+
+        def check_part(a, b, c, index, program):
+
+            # call recursively, find the correct values of A for each part of the program from the right
+
+            # end case
+            if (output := self.solve1(a, b, c, program)) == program:
+                return a
+            
+            # doesn't match whole program, check it matches so far
+            if output == program[-index:] or not index:
+                # multiply by 8 add and possible remainders
+                for j in range(8):
+                    if (ans := check_part(a * 8 + j, b, c, index + 1, program)):
+                        return ans
+
+        return check_part(0, 0, 0, 0, program)
 
     def testSolution2(self) -> bool:
 
@@ -84,7 +162,13 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        a = int(input[0].split(': ')[1])
+        b = int(input[1].split(': ')[1])
+        c = int(input[2].split(': ')[1])
+
+        program = [int(s) for s in input[-1].split(': ')[1].split(',')]
+
+        attempt = self.solve2(a, b, c, program)
 
         return attempt
         
@@ -102,3 +186,5 @@ class Solution:
 
 
 a = Solution()
+# a.runPart1()
+a.runPart2()
