@@ -8,9 +8,9 @@ class Solution:
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
         # self.test1Ans       = []
-        self.test2Ans       = []
+        # self.test2Ans       = []
         self.part1TestAns   = 3
-        self.part2TestAns   = 0
+        self.part2TestAns   = 6
 
 
     def read(self, filename: str) -> list:
@@ -66,26 +66,26 @@ class Solution:
         print(self.part1(realAttempt))
 
 
+    def parseRotation2(self, rotation: str) -> int:
 
-    def solve2(self, line: str) -> int:
+        if rotation[0] == 'R':
+            return int(rotation[1:])
+        else:
+            return - int(rotation[1:])
 
-        lineAns = 0
+    def turnDial(self, point: int, turn: int):
 
-        return lineAns
+        new_point = point + turn
 
-    def testSolution2(self) -> bool:
+        if turn > 0:
+            pass_zero = new_point // 100
+        else:
+            pass_zero = ((100 - point) % 100 + abs(turn)) // 100
 
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
-    
+        new_point %= 100
+
+        return pass_zero, new_point
+
     def part2(self, realAttempt = False) -> int:
 
         if realAttempt:
@@ -93,7 +93,21 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        point = 50
+
+        rotation_sequence = [
+            self.parseRotation2(rotation)
+                for rotation
+                in input
+        ]
+
+        zero_count = 0
+
+        for addition in rotation_sequence:
+            pass_zero, point = self.turnDial(point, addition)
+            zero_count += pass_zero
+
+        attempt = zero_count
 
         return attempt
         
@@ -112,3 +126,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.runPart2()
