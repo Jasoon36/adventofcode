@@ -10,7 +10,7 @@ class Solution:
         # self.test1Ans       = []
         # self.test2Ans       = []
         self.part1TestAns   = 13
-        self.part2TestAns   = 0
+        self.part2TestAns   = 43
 
 
     def read(self, filename: str) -> list:
@@ -63,26 +63,6 @@ class Solution:
         realAttempt = True
         print(self.part1(realAttempt))
 
-
-
-    def solve2(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part2(self, realAttempt = False) -> int:
 
@@ -91,9 +71,37 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        
+        grid = {
+            i + j * 1j : char
+                for i, line in enumerate(input)
+                for j, char in enumerate(line)
+        }
 
-        return attempt
+        paper_to_remove = {
+            position : 'x'
+                for position, val
+                in grid.items()
+                if val == '@' and self.checkAdjacentPositions(grid, position)
+        }
+
+        grid |= paper_to_remove
+
+        removed_rolls = len(paper_to_remove.keys())
+
+        while paper_to_remove.keys():
+
+            paper_to_remove = {
+                position : 'x'
+                    for position, val
+                    in grid.items()
+                    if val == '@' and self.checkAdjacentPositions(grid, position)
+            }
+
+            grid |= paper_to_remove
+            removed_rolls += len(paper_to_remove.keys())
+
+        return removed_rolls
         
     def runPart2(self):
 
@@ -110,3 +118,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.runPart2()
