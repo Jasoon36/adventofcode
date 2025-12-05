@@ -10,7 +10,7 @@ class Solution:
         # self.test1Ans       = []
         # self.test2Ans       = []
         self.part1TestAns   = 3
-        self.part2TestAns   = 0
+        self.part2TestAns   = 14
 
 
     def read(self, filename: str) -> list:
@@ -58,26 +58,33 @@ class Solution:
         print(self.part1(realAttempt))
 
 
+    def reduce_ranges(self, list_of_ranges, range_to_insert):
 
-    def solve2(self, line: str) -> int:
+        reduce_again = True
 
-        lineAns = 0
+        while reduce_again:
 
-        return lineAns
+            reduce_again = False
 
-    def testSolution2(self) -> bool:
+            for i, id_range in enumerate(list_of_ranges):
 
-        for line, ans in zip(self.test, self.test1Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
-    
+                if range_to_insert[0] <= id_range[1] and range_to_insert[1] >= id_range[0]:
+                    
+                    reduce_again = True
+
+                    range_to_insert = (
+                        min(range_to_insert[0], id_range[0]),
+                        max(range_to_insert[1], id_range[1])
+                    )
+                    
+                    list_of_ranges.pop(i)
+                    
+                    break
+
+        list_of_ranges.append(range_to_insert)
+
+        return list_of_ranges
+
     def part2(self, realAttempt = False) -> int:
 
         if realAttempt:
@@ -85,7 +92,21 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        split = input.index('')
+
+        flattened_ranges = []
+
+        for insert_range in input[:split]:
+
+            insert_min, insert_max = map(int, insert_range.split('-'))
+
+            flattened_ranges = self.reduce_ranges(flattened_ranges, (insert_min, insert_max))
+
+        attempt = sum(
+            min_max[1] - min_max[0] + 1
+                for min_max
+                in flattened_ranges
+        )
 
         return attempt
         
@@ -104,3 +125,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.runPart2()
