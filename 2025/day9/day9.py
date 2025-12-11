@@ -58,46 +58,66 @@ class Solution:
         print(self.part1(realAttempt))
 
 
-    def showMeGreenTiles(self, red_1, red_2) -> list:
+    def rectangleValid(self, coordinate_1, coordinate_2, line_segment_endpoints) -> bool:
 
-        if red_1[0] == red_2[0]:
-            return [
-                (red_1[0], y)
-                    for y
-                    in range(min(red_1[1],red_2[1]) + 1, max(red_1[1],red_2[1]))
-            ]
-        else:
-            return [
-                (x, red_1[1])
-                    for x
-                    in range(min(red_1[0],red_2[0]) + 1, max(red_1[0],red_2[0]))
-            ]
+        min_x = min(coordinate_1[0], coordinate_2[0])
+        max_x = max(coordinate_1[0], coordinate_2[0])
+        min_y = min(coordinate_1[1], coordinate_2[1])
+        max_y = max(coordinate_1[1], coordinate_2[1])
 
-    def getStartingPoint(self, three_red_tiles):
+        for endpoints in line_segment_endpoints:
 
-        coordinates = [
-            coor[0] + coor[1] * 1j
-                for coor
-                in three_red_tiles
-        ]
+            if coordinate_1 in endpoints or coordinate_2 in endpoints:
+                # skip if an endpoint matches one of the opposite corners
+                continue
 
-        middle_to_before = coordinates[0] - coordinates[1]
-        middle_to_next = coordinates[2] - coordinates[1]
+            # for x, y in endpoints:
+            #     # line ends inside rectangle
+            #     if min_x - x <= 0 and max_x - x >= 0 and min_y - y <= 0 and max_y - y >= 0:
+            #         # print(coordinate_1, coordinate_2, endpoints)
+            #         return False
 
-        return coordinates[1] + middle_to_before / abs(middle_to_before) + middle_to_next / abs(middle_to_next)
+            end_x_1, end_y_1 = endpoints[0]
+            end_x_2, end_y_2 = endpoints[1]
 
-    def rectangleValid(self, coordinate_1, coordinate_2, allowed_tiles) -> int:
+            if end_x_1 == end_x_2 and min_x < end_x_1 < max_x:
+                # vertical line
 
-        tiles_created = set((
-            x + y * 1j
-                for x in range(min(coordinate_1[0], coordinate_2[0]), max(coordinate_1[0], coordinate_2[0]) + 1)
-                for y in range(min(coordinate_1[1], coordinate_2[1]), max(coordinate_1[1], coordinate_2[1]) + 1)
-        ))
+                min_end_y = min(end_y_1, end_y_2)
+                max_end_y = max(end_y_1, end_y_2)
 
-        if tiles_created <= allowed_tiles:
-            return len(tiles_created)
-        
-        return 0
+                if min_end_y <= min_y and max_end_y >= max_y:
+                    # line cuts fully through rectangle
+                    return False
+
+                if max_y > min_end_y > min_y and max_end_y >= max_y:
+                    # line only cuts into the rectangle
+                    return False
+
+                if min_end_y <= min_y and min_y < max_end_y < max_y:
+                    # line only cuts into the rectangle
+                    return False
+
+            if end_y_1 == end_y_2 and min_y < end_y_1 < max_y:
+                # horizontal line
+
+                min_end_x = min(end_x_1, end_x_2)
+                max_end_x = max(end_x_1, end_x_2)
+
+                if min_end_x <= min_x and max_end_x >= max_x:
+                    # line cuts fully through rectangle
+                    return False
+
+                if max_x > min_end_x > min_x and max_end_x >= max_x:
+                    # line only cuts into the rectangle
+                    return False
+
+                if min_end_x <= min_x and min_x < max_end_x < max_x:
+                    # line only cuts into the rectangle
+                    return False
+
+        return True
+
 
     def part2(self, realAttempt = False) -> int:
 
@@ -112,58 +132,23 @@ class Solution:
                 in input
         ]
 
-        movie_theatre = {
-            x + y * 1j : True
-                for x, y
-                in red_tiles
-        }
-
-        movie_theatre |= {
-            x + y * 1j : True
+        line_segment_endpoints = [
+            ((red_1[0], red_1[1]), (red_2[0], red_2[1]))
                 for red_1, red_2 in zip(red_tiles[:-1], red_tiles[1:])
-                for x, y in self.showMeGreenTiles(red_1, red_2)
-        }
+        ]
 
-        movie_theatre |= {
-            x + y * 1j : True
-                for x, y in self.showMeGreenTiles(red_tiles[0], red_tiles[-1])
-        }
+        line_segment_endpoints.append(((red_tiles[0][0], red_tiles[0][1]), (red_tiles[-1][0], red_tiles[-1][1])))
 
-        starting_points = set([self.getStartingPoint(red_tiles[:3])])
-        
-        while starting_points:
-
-            current_point = starting_points.pop()
-
-            if not movie_theatre.get(current_point, False):
-                movie_theatre[current_point] = True
-
-                starting_points |= set((
-                    new_point
-                        for jitter
-                        in (1, -1, 1j, -1j)
-                        if not movie_theatre.get((new_point := current_point + jitter), False)
-                ))
-
-        all_tiles = set((
-            point
-                for point, tile
-                in movie_theatre.items()
-                if tile
-        ))
-
-        all_rectangles = {
+        all_potential_rectangles = {
             (red_tiles[idx], second_coordinate) : self.area(red_tiles[idx], second_coordinate)
-                for idx in range(len(red_tiles)-2)
+                for idx in range(len(red_tiles)-2) # can skip the thin rectangles (or known as lines) so -2 not -1
                 for second_coordinate in red_tiles[idx+2:]
         }
 
-        for coor in dict(sorted(all_rectangles.items(), key=lambda item: item[1], reverse=True)).keys():
-
-            if (attempt := self.rectangleValid(coor[0], coor[1], all_tiles)):
-                print(attempt)
-                return attempt
-            print('uno mas')
+        for coordinates, area in dict(sorted(all_potential_rectangles.items(), key=lambda item: item[1], reverse=True)).items():
+            if self.rectangleValid(coordinates[0], coordinates[1], line_segment_endpoints):
+                print(coordinates)
+                return area
         
     def runPart2(self):
 
