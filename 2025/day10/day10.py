@@ -8,9 +8,9 @@ class Solution:
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
         self.test1Ans       = [2, 3, 2]
-        self.test2Ans       = []
+        self.test2Ans       = [10, 12, 11]
         self.part1TestAns   = 7
-        self.part2TestAns   = 0
+        self.part2TestAns   = 33
 
 
     def read(self, filename: str) -> list:
@@ -48,8 +48,8 @@ class Solution:
 
         while 0 not in lights:
             press_button = set((
-                l ^ b
-                    for l in lights
+                light ^ b
+                    for light in lights
                     for b in buttons
             ))
 
@@ -98,14 +98,57 @@ class Solution:
 
 
     def solve2(self, line: str) -> int:
+        
+        machine = line.split()
 
-        lineAns = 0
+        joltage_counters = {tuple(
+            joltage
+                for joltage 
+                in map(int, machine[-1][1:-1].split(','))
+        )}
 
-        return lineAns
+
+        buttons = tuple(
+            set(map(int, button[1:-1].split(',')))
+                for button 
+                in machine[1:-1]
+        )
+
+        # print(joltage_counters, buttons)
+        
+        button_presses = 0
+
+        while len(joltage_counters):
+            
+            button_presses += 1
+
+            new_counters = set()
+
+            for current_counter in joltage_counters:
+
+                for button in buttons:
+                    new_counter = tuple(
+                        count - 1 if idx in button else count
+                            for idx, count
+                            in enumerate(current_counter)
+                    )
+
+                    if {-1} <= set(new_counter):
+                        continue
+
+                    if {0} == set(new_counter):
+                        # print(current_counter, button, new_counter)
+                        return button_presses
+
+                    new_counters.add(new_counter)
+
+            joltage_counters = new_counters
+
+            # print(joltage_counters)
 
     def testSolution2(self) -> bool:
 
-        for line, ans in zip(self.test, self.test1Ans):
+        for line, ans in zip(self.test, self.test2Ans):
             try:
                 attempt = self.solve2(line)
                 assert attempt == ans
@@ -123,7 +166,7 @@ class Solution:
         else:
             input = self.test
 
-        attempt = sum([1 for line in input])
+        attempt = sum(self.solve2(line) for line in input)
 
         return attempt
         
@@ -143,3 +186,5 @@ class Solution:
 a = Solution()
 # a.testSolution1()
 a.runPart1()
+# a.testSolution2()
+a.runPart2()
