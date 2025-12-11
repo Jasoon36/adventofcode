@@ -95,10 +95,7 @@ class Solution:
         ))
 
         if tiles_created <= allowed_tiles:
-            # print(coordinate_1, coordinate_2)
             return len(tiles_created)
-
-        # print(coordinate_1, coordinate_2, tiles_created)
         
         return 0
 
@@ -115,51 +112,38 @@ class Solution:
                 in input
         ]
 
-        green_tiles = []
-
-        for red_1, red_2 in zip(red_tiles[:-1], red_tiles[1:]):
-            green_tiles.extend(self.showMeGreenTiles(red_1, red_2))
-
-        green_tiles.extend(self.showMeGreenTiles(red_tiles[-1], red_tiles[0]))
-
-        x_min = min(coor[0] for coor in red_tiles)
-        x_max = max(coor[0] for coor in red_tiles)
-        y_min = min(coor[1] for coor in red_tiles)
-        y_max = max(coor[1] for coor in red_tiles)
-
         movie_theatre = {
-            x + y * 1j : False
-                for x in range(x_min, x_max)
-                for y in range(y_min, y_max)
+            x + y * 1j : True
+                for x, y
+                in red_tiles
         }
 
-        for coor in red_tiles:
-            movie_theatre[coor[0] + coor[1] * 1j] = True
+        movie_theatre |= {
+            x + y * 1j : True
+                for red_1, red_2 in zip(red_tiles[:-1], red_tiles[1:])
+                for x, y in self.showMeGreenTiles(red_1, red_2)
+        }
 
-        for coor in green_tiles:
-            movie_theatre[coor[0] + coor[1] * 1j] = True
+        movie_theatre |= {
+            x + y * 1j : True
+                for x, y in self.showMeGreenTiles(red_tiles[0], red_tiles[-1])
+        }
 
         starting_points = set([self.getStartingPoint(red_tiles[:3])])
         
-        print('i am here')
-
         while starting_points:
 
             current_point = starting_points.pop()
 
-            if not movie_theatre[current_point]:
+            if not movie_theatre.get(current_point, False):
                 movie_theatre[current_point] = True
 
                 starting_points |= set((
                     new_point
                         for jitter
                         in (1, -1, 1j, -1j)
-                        if not movie_theatre[(new_point := current_point + jitter)]
+                        if not movie_theatre.get((new_point := current_point + jitter), False)
                 ))
-
-            print(len(starting_points))
-
-        print('i actually got here')
 
         all_tiles = set((
             point
@@ -168,17 +152,18 @@ class Solution:
                 if tile
         ))
 
-        print(len(all_tiles))
-        
-        print('dw im ere')
-
-        attempt = max(
-            self.rectangleValid(red_tiles[idx], second_coordinate, all_tiles)
+        all_rectangles = {
+            (red_tiles[idx], second_coordinate) : self.area(red_tiles[idx], second_coordinate)
                 for idx in range(len(red_tiles)-2)
                 for second_coordinate in red_tiles[idx+2:]
-        )
+        }
 
-        return attempt
+        for coor in dict(sorted(all_rectangles.items(), key=lambda item: item[1], reverse=True)).keys():
+
+            if (attempt := self.rectangleValid(coor[0], coor[1], all_tiles)):
+                print(attempt)
+                return attempt
+            print('uno mas')
         
     def runPart2(self):
 
