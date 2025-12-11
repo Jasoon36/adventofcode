@@ -3,7 +3,7 @@ class Solution:
         Attempt at Day 
     '''
     def __init__(self):
-        self.year           = '2024'
+        self.year           = '2025'
         self.day            = ''
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
@@ -72,7 +72,7 @@ class Solution:
 
     def testSolution2(self) -> bool:
 
-        for line, ans in zip(self.test, self.test1Ans):
+        for line, ans in zip(self.test, self.test2Ans):
             try:
                 attempt = self.solve2(line)
                 assert attempt == ans
