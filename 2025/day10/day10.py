@@ -205,34 +205,71 @@ class Solution:
         # print(double_press)
         min_button_presses = 1e7
 
-        while get_the_lights_correct:
+
+        # go backwards
+
+        zeroes = tuple(0 for _ in range(total_counters))
+
+        joltage_steps = set((joltage_target,))
+
+        joltages_seen = set((joltage_target,))
+
+        joltage_ends = set(get_the_lights_correct.keys())
+
+        presses = 0
+
+        while presses > min_button_presses + min(get_the_lights_correct.values()):
 
             one_step = {}
+            presses += 2
 
-            for joltage_to_double_press, current_presses in get_the_lights_correct.items():
-                
-                new_press = current_presses + 2
+            one_step = set(
+                new_joltage
+                    for current_joltage in joltage_steps
+                    for joltage_to_subtract in double_press
+                    if (new_joltage := tuple(a - b for a,b in zip(current_joltage, joltage_to_subtract))) >= zeroes and new_joltage not in joltages_seen
+            )
 
-                if new_press >= min_button_presses:
-                    # skip if already greater than or equal to current minimum
-                    continue
-
-                for joltage_to_add in double_press:
-
-                    new_joltage = tuple(
-                        a + b
-                            for a, b
-                            in zip(joltage_to_double_press, joltage_to_add)
+            if len((reached_end := one_step & joltage_ends)) > 0:
+                min_button_presses = min(
+                    min(
+                        presses + get_the_lights_correct[joltage_terminand]
+                            for joltage_terminand
+                            in reached_end
                     )
+                    , min_button_presses
+                )
 
-                    if new_joltage == joltage_target:
-                        min_button_presses = min(new_press, min_button_presses)
+            one_step -= reached_end
 
-                    if new_joltage <= joltage_target:
-                        if new_press < one_step.get(new_joltage, min_button_presses):
-                            one_step[new_joltage] = new_press
+            joltages_seen |= one_step 
 
-            get_the_lights_correct = one_step
+            joltage_steps = one_step
+
+
+                
+                
+
+                # if new_press >= min_button_presses:
+                    # skip if already greater than or equal to current minimum
+                    # continue
+
+            #     for joltage_to_subtract in double_press:
+
+            #         new_joltage = tuple(
+            #             a - b
+            #                 for a, b
+            #                 in zip(joltage_to_double_press, joltage_to_subtract)
+            #         )
+
+            #         if new_joltage in joltage_target:
+            #             min_button_presses = min(new_press, min_button_presses)
+
+            #         if new_joltage <= joltage_target:
+            #             if new_press < one_step.get(new_joltage, min_button_presses):
+            #                 one_step[new_joltage] = new_press
+
+            # get_the_lights_correct = one_step
 
             # print(get_the_lights_correct)
 
@@ -288,5 +325,5 @@ class Solution:
 a = Solution()
 # a.testSolution1()
 # a.runPart1()
-# a.testSolution2()
-a.runPart2()
+a.testSolution2()
+# a.runPart2()
