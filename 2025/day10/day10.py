@@ -98,53 +98,155 @@ class Solution:
 
 
     def solve2(self, line: str) -> int:
+
+        # yeah part 1 was a hint duh
+        # the joltage requirements obviously still affects the lights
+        # and we start with zero voltage and all lights off (all even, yes zero is even fight me)
+        # and will need the lights to end as e.g. odd, even, even, etc.
+
+        # pressing a button twice keeps the lights the same as before
+        # so first find all combinations of buttons that will generate the lights we need
+        # we only need to press each button once in the combinations, as twice will just reverse the first press
+
+        # with the valid combinations subtract total joltage
+        # then we can iterate through pressing each button twice until the joltage is the same
+
+        # yeah super easy right?
+
+
         
         machine = line.split()
 
-        joltage_counters = {tuple(
+        joltage_target = tuple(
             joltage
                 for joltage 
                 in map(int, machine[-1][1:-1].split(','))
-        )}
-
-
-        buttons = tuple(
-            set(map(int, button[1:-1].split(',')))
-                for button 
-                in machine[1:-1]
         )
 
-        # print(joltage_counters, buttons)
+        light_end_state = sum(
+            (joltage % 2) * 2 ** power
+                for power, joltage 
+                in enumerate(joltage_target)
+        )
+
+        buttons = {
+            tuple(map(int, button[1:-1].split(','))) : sum(
+                1 * 2 ** power
+                    for power 
+                    in map(int, button[1:-1].split(','))
+            )
+                for button 
+                in machine[1:-1]
+        }
+
+
+        total_counters = len(joltage_target)
+
+        all_button_combinations = {}
+
+        for button, light_change in buttons.items():
+
+            all_button_combinations |= {
+                (*button_combo, button) : light ^ light_change
+                    for button_combo, light 
+                    in all_button_combinations.items()
+            }
+
+            all_button_combinations[tuple((button,))] = light_change
         
-        button_presses = 0
+        all_valid_combinations = [
+            button_combo
+                for button_combo, light
+                in all_button_combinations.items()
+                if light == light_end_state
+        ]
 
-        while len(joltage_counters):
+        get_the_lights_correct = {}
+        # joltage_subtract : button_presses
+
+        for button_combo in all_valid_combinations:
             
-            button_presses += 1
+            # get joltage count
 
-            new_counters = set()
+            joltage_count = [0 for _ in range(total_counters)]
 
-            for current_counter in joltage_counters:
+            for button in button_combo:
+                for counter in button:
+                    joltage_count[counter] += 1
 
-                for button in buttons:
-                    new_counter = tuple(
-                        count - 1 if idx in button else count
-                            for idx, count
-                            in enumerate(current_counter)
+            # button press count
+            button_press = len(button_combo)
+
+            joltage_key = tuple(j for j in joltage_count)
+
+            if button_press < get_the_lights_correct.get(joltage_key, 1e3):
+                get_the_lights_correct[joltage_key] = button_press
+
+        
+        # we now have starting joltages
+        # so we need to press each button twice and continue doing so until we reach target joltage
+
+        double_press = [
+            tuple(
+                2 if idx in button else 0
+                    for idx
+                    in range(total_counters)
+                    
+            )
+                for button
+                in buttons.keys()
+        ]
+
+
+        # print(joltage_target)
+
+        # print(get_the_lights_correct)
+
+        # print(double_press)
+        min_button_presses = 1e7
+
+        while get_the_lights_correct:
+
+            one_step = {}
+
+            for joltage_to_double_press, current_presses in get_the_lights_correct.items():
+                
+                new_press = current_presses + 2
+
+                if new_press >= min_button_presses:
+                    # skip if already greater than or equal to current minimum
+                    continue
+
+                for joltage_to_add in double_press:
+
+                    new_joltage = tuple(
+                        a + b
+                            for a, b
+                            in zip(joltage_to_double_press, joltage_to_add)
                     )
 
-                    if {-1} <= set(new_counter):
-                        continue
+                    if new_joltage == joltage_target:
+                        min_button_presses = min(new_press, min_button_presses)
 
-                    if {0} == set(new_counter):
-                        # print(current_counter, button, new_counter)
-                        return button_presses
+                    if new_joltage <= joltage_target:
+                        if new_press < one_step.get(new_joltage, min_button_presses):
+                            one_step[new_joltage] = new_press
 
-                    new_counters.add(new_counter)
+            get_the_lights_correct = one_step
 
-            joltage_counters = new_counters
+            # print(get_the_lights_correct)
 
-            # print(joltage_counters)
+            # break
+
+            # if min_button_presses < 1e7:
+                # break
+
+            print(min_button_presses)
+
+        # this is slow likely becauseI return to the same joltages over and over again and don't do any elimination
+        # or maybe its just rubbish - pretty likely
+
+        return min_button_presses
 
     def testSolution2(self) -> bool:
 
@@ -185,6 +287,6 @@ class Solution:
 
 a = Solution()
 # a.testSolution1()
-a.runPart1()
+# a.runPart1()
 # a.testSolution2()
 a.runPart2()
