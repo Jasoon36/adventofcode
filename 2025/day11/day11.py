@@ -7,6 +7,7 @@ class Solution:
         self.day            = '11'
         self.prod           = self.read('input.txt')
         self.test           = self.read('input_test.txt')
+        self.test2          = self.read('input_test2.txt')
         # self.test1Ans       = []
         # self.test2Ans       = []
         self.part1TestAns   = 5
@@ -60,36 +61,52 @@ class Solution:
         print(self.part1(realAttempt))
 
 
-
-    def solve2(self, line: str) -> int:
-
-        lineAns = 0
-
-        return lineAns
-
-    def testSolution2(self) -> bool:
-
-        for line, ans in zip(self.test, self.test2Ans):
-            try:
-                attempt = self.solve2(line)
-                assert attempt == ans
-            except AssertionError as e:
-                e.add_note(f'{attempt} is not {ans} for input\n{line}')
-                raise e
-        
-        print('keep going')
-        return True
     
     def part2(self, realAttempt = False) -> int:
 
         if realAttempt:
             input = self.prod
         else:
-            input = self.test
+            input = self.test2
 
-        attempt = sum([1 for line in input])
+        rack = {
+            (key_value := line.split(': '))[0] : key_value[1].split(' ')
+                for line
+                in input
+        }
 
-        return attempt
+        rack_paths = {}
+
+        def getPaths2(device: str):
+
+            paths = [
+                [0,0,0,1] if next_device == 'out' else rack_paths.setdefault(next_device, getPaths2(next_device))
+                    for next_device
+                    in rack[device]
+            ]
+
+            combine_paths = [
+                sum(paths_via)
+                   for paths_via
+                   in map(list, zip(*paths)) # transpose
+            ]
+
+            match device: 
+                case 'fft':
+                    combine_paths[0] += combine_paths[2]
+                    combine_paths[2] = 0
+                    combine_paths[1] = combine_paths[3]
+                    combine_paths[3] = 0
+
+                case 'dac':
+                    combine_paths[0] += combine_paths[1]
+                    combine_paths[1] = 0
+                    combine_paths[2] = combine_paths[3]
+                    combine_paths[3] = 0
+            
+            return combine_paths
+
+        return getPaths2('svr')[0]
         
     def runPart2(self):
 
