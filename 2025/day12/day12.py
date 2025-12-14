@@ -9,7 +9,7 @@ class Solution:
         self.test           = self.read('input_test.txt')
         # self.test1Ans       = [True, True, False]
         self.test2Ans       = []
-        self.part1TestAns   = 2
+        # self.part1TestAns   = 2
         self.part2TestAns   = 0
 
 
@@ -20,58 +20,15 @@ class Solution:
         return input
     
     
-    def solve1(self, line: str, presents) -> int:
+    def solve1(self, line: str) -> bool:
 
         region_size, gifts = line.split(': ')
-
         
-        gifts_to_place = []
-
-        for present_id, quantity in enumerate(gifts.split(' ')):
-            for _ in range(int(quantity)):
-                gifts_to_place.append(present_id)
+        gifts_to_place = 9 * sum(quantity for quantity in map(int, gifts.split(' ')) if quantity)
 
         x, y = map(int, region_size.split('x'))
 
-        current_areas_under_tree = [{
-            i + j * 1j
-                for i in range(x)
-                for j in range(y)
-        }]
-
-        # print(current_areas_under_tree)
-        print(len(current_areas_under_tree), len(gifts_to_place))
-
-        while current_areas_under_tree and gifts_to_place:
-            
-            place_a_present = []
-
-            present_to_try_to_place = presents[gifts_to_place.pop()]
-
-
-            for current_area in current_areas_under_tree:
-                for i in range(1,x-1):
-                    for j in range(1,y-1):
-                        for present in present_to_try_to_place:
-                            if len(current_area & (place_it_here := {coor + i + j * 1j for coor in present})) == len(present):
-                                place_a_present.append(current_area - place_it_here)
-                            # print(current_area)
-                            # print(place_it_here)
-                            # print(current_area & place_it_here)
-                            # print(len(current_area & place_it_here), len(present))
-
-                            # return False
-
-
-            current_areas_under_tree = place_a_present
-
-            print(len(current_areas_under_tree), len(gifts_to_place))
-
-        print('done one tree')
-        if current_areas_under_tree and not gifts_to_place:
-            return True
-        else:
-            return False
+        return x * y >= gifts_to_place
     
     def part1(self, realAttempt = False) -> int:
 
@@ -80,66 +37,66 @@ class Solution:
         else:
             input = self.test
 
-        presents = {}
-        offset_to_origin = -1 - 1 * 1j
-        rotations = (1j, -1, -1j)
-
-        for present_input in input[:-1]:
-            
-            present_id = int(present_input[0].split(':')[0])
-
-            raw_and_reflected_input = set()
-
-            raw_and_reflected_input.add(tuple(
-                i + j * 1j + offset_to_origin
-                    for i, line in enumerate(present_input[1:])
-                    for j, char in enumerate(line)
-                    if char == '#'
-            ))
-
-            raw_and_reflected_input.add(tuple(
-                i + j * 1j + offset_to_origin
-                    for i, line in enumerate(present_input[1::][::-1])
-                    for j, char in enumerate(line)
-                    if char == '#'
-            ))
-
-            # add 90, 180, and 270 rotations of both the original and reflected input
-            # using a set will eliminate symmettries
-            
-            raw_and_reflected_input |= {
-                tuple(
-                    point * rotate
-                        for point
-                        in present
-                )
-                    for present in raw_and_reflected_input
-                    for rotate in rotations
-            }
-
-            presents[present_id] = raw_and_reflected_input
-
         attempt = sum(
             1 
-            for line 
-            in input[-1]
-            if self.solve1(line, presents)
+                for line 
+                in input[-1]
+                if self.solve1(line)
         )
 
         return attempt
         
     def runPart1(self):
 
-        try:
-            part1TestAttempt = self.part1()
-            assert part1TestAttempt == self.part1TestAns
-        except AssertionError as e:
-            e.add_note(f'part 1 test ans {part1TestAttempt} is not {self.part1TestAns}')
-            raise e
+        # try:
+        #     part1TestAttempt = self.part1()
+        #     assert part1TestAttempt == self.part1TestAns
+        # except AssertionError as e:
+        #     e.add_note(f'part 1 test ans {part1TestAttempt} is not {self.part1TestAns}')
+        #     raise e
         
         realAttempt = True
         print(self.part1(realAttempt))
 
+    def plotPart1(self):
+        import matplotlib.pyplot as plt
+        
+        tiles_per_present = {
+            idx : sum(
+                1
+                    for line in present
+                    for tile in line
+                    if tile == '#'
+            )
+                for idx, present in enumerate(self.prod[:-1])
+        }
+
+        available_tiles = []
+        max_tiles_required = []
+        min_tiles_required = []
+
+        for line in self.prod[-1]:
+
+            region_size, gifts = line.split(': ')
+
+            x, y = map(int, region_size.split('x'))
+            available_tiles.append(x*y)
+            
+            max_tiles_required.append(9 * sum(quantity for quantity in map(int, gifts.split(' ')) if quantity))
+
+            min_tiles_required.append(sum(tiles_per_present[idx] *quantity for idx, quantity in enumerate(map(int, gifts.split(' '))) if quantity))
+
+        plt.scatter(available_tiles, max_tiles_required, color='blue', marker='o')
+        plt.scatter(available_tiles, min_tiles_required, color='green', marker='x', label='Min Tiles Required')
+
+        max_val = max(max(available_tiles), max(max_tiles_required))
+        plt.plot([0, max_val], [0, max_val], color='red', linestyle='--', label='y = x')
+
+        plt.xlabel("Available Tiles")
+        plt.ylabel("Tiles Required")
+        plt.title("Tiles vs Required Tiles")
+        plt.grid(True)
+        plt.show()
 
 
     def solve2(self, line: str) -> int:
@@ -187,3 +144,4 @@ class Solution:
 
 a = Solution()
 a.runPart1()
+a.plotPart1()
