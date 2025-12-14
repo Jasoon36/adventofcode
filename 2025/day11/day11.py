@@ -11,7 +11,7 @@ class Solution:
         # self.test1Ans       = []
         # self.test2Ans       = []
         self.part1TestAns   = 5
-        self.part2TestAns   = 0
+        self.part2TestAns   = 2
 
 
     def read(self, filename: str) -> list:
@@ -75,38 +75,41 @@ class Solution:
                 in input
         }
 
-        rack_paths = {}
-
-        def getPaths2(device: str):
-
-            paths = [
-                [0,0,0,1] if next_device == 'out' else rack_paths.setdefault(next_device, getPaths2(next_device))
+        def getPaths2(device: str, base='out') -> int:
+            
+            paths = sum(
+                1 if next_device == base else 0 if next_device == 'out' else rack_paths.setdefault(next_device, getPaths2(next_device, base))
                     for next_device
                     in rack[device]
-            ]
+            )
 
-            combine_paths = [
-                sum(paths_via)
-                   for paths_via
-                   in map(list, zip(*paths)) # transpose
-            ]
+            # print(paths)
 
-            match device: 
-                case 'fft':
-                    combine_paths[0] += combine_paths[2]
-                    combine_paths[2] = 0
-                    combine_paths[1] = combine_paths[3]
-                    combine_paths[3] = 0
+            return paths
 
-                case 'dac':
-                    combine_paths[0] += combine_paths[1]
-                    combine_paths[1] = 0
-                    combine_paths[2] = combine_paths[3]
-                    combine_paths[3] = 0
-            
-            return combine_paths
+        try:
+            attempt = 1
+            path_to_try = ('svr', 'dac', 'fft', 'out')
 
-        return getPaths2('svr')[0]
+            for start, end in zip(path_to_try[:-1], path_to_try[1:]):
+                rack_paths = {}
+                attempt *= getPaths2(start, end)
+
+                assert attempt > 0, "yeah not dac first"
+                    
+                print(start, end, attempt)
+
+        except:
+            attempt = 1
+            path_to_try = ('svr', 'fft', 'dac', 'out')
+
+            for start, end in zip(path_to_try[:-1], path_to_try[1:]):
+                rack_paths = {}
+                attempt *= getPaths2(start, end)
+                
+                print(start, end, attempt)
+
+        return attempt
         
     def runPart2(self):
 
