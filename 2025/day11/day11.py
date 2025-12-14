@@ -37,12 +37,17 @@ class Solution:
         rack_paths = {}
 
         def getPaths(device: str) -> int:
-            
-            paths = sum(
-                1 if next_device == 'out' else rack_paths.setdefault(next_device, getPaths(next_device))
-                    for next_device
-                    in rack[device]
-            )
+
+            paths = 0
+
+            for next_device in rack[device]:
+                if next_device == 'out': 
+                    paths += 1
+                    continue
+                elif next_device not in rack_paths:
+                    rack_paths[next_device] = getPaths(next_device)
+
+                paths += rack_paths[next_device]
 
             return paths
 
@@ -70,44 +75,75 @@ class Solution:
             input = self.test2
 
         rack = {
-            (key_value := line.split(': '))[0] : key_value[1].split(' ')
+            (key_value := line.split(': '))[0] : set(key_value[1].split(' '))
                 for line
                 in input
         }
 
-        def getPaths2(device: str, base='out') -> int:
-            
-            paths = sum(
-                1 if next_device == base else 0 if next_device == 'out' else rack_paths.setdefault(next_device, getPaths2(next_device, base))
-                    for next_device
-                    in rack[device]
-            )
+        connections = {}
 
-            # print(paths)
+        def getConnections(device: str):
+
+            set_of_all_connections = set(rack[device])
+            
+            for next_device in rack[device]:
+                # print(device, next_device)
+                if next_device == 'out':
+                    set_of_all_connections |= {'out'}
+                else:
+                    if next_device not in connections:
+                        connections[next_device] = getConnections(next_device)
+                    set_of_all_connections |= connections[next_device]
+
+            return set_of_all_connections
+
+        connections['svr'] = getConnections('svr')
+
+        dac_first = len({'fft'} & connections['dac']) > 0
+
+        if dac_first:
+            stops = ('svr', 'dac', 'fft', 'out')
+        else:
+            stops = ('svr', 'fft', 'dac', 'out')
+
+        def getPaths2(device: str, base: str, allowed_devices: set) -> int:
+
+            connections_to_search = rack[device] & (allowed_devices | {base})
+
+            paths = 0
+
+            for next_device in connections_to_search:
+                if next_device == base: 
+                    paths += 1
+                    continue
+                elif next_device == 'out':
+                    continue
+                elif next_device not in rack_paths:
+                    rack_paths[next_device] = getPaths2(next_device, base, allowed_devices)
+
+                paths += rack_paths[next_device]
 
             return paths
 
-        try:
-            attempt = 1
-            path_to_try = ('svr', 'dac', 'fft', 'out')
+        attempt = 1
 
-            for start, end in zip(path_to_try[:-1], path_to_try[1:]):
-                rack_paths = {}
-                attempt *= getPaths2(start, end)
+        for i in range(3):
 
-                assert attempt > 0, "yeah not dac first"
-                    
-                print(start, end, attempt)
+            start = stops[i]
+            end_i = i+1
+            end = stops[end_i]
+            needed_connections = set(stops[end_i:])
+            required_length = len(needed_connections)
 
-        except:
-            attempt = 1
-            path_to_try = ('svr', 'fft', 'dac', 'out')
+            allowed_devices = connections[start] | {
+                device
+                    for device, connected_devices
+                    in connections.items()
+                    if len(connected_devices & needed_connections) == required_length
+            }
 
-            for start, end in zip(path_to_try[:-1], path_to_try[1:]):
-                rack_paths = {}
-                attempt *= getPaths2(start, end)
-                
-                print(start, end, attempt)
+            rack_paths = {}
+            attempt *= getPaths2(start, end, allowed_devices)
 
         return attempt
         
@@ -116,7 +152,6 @@ class Solution:
         try:
             part2TestAttempt = self.part2()
             assert part2TestAttempt == self.part2TestAns
-            print('yay')
         except AssertionError as e:
             e.add_note(f'part 2 test ans {part2TestAttempt} is not {self.part2TestAns}')
             raise e
