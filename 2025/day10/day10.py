@@ -153,34 +153,33 @@ class Solution:
 
             return joltage
 
-        presses_required_for_joltage = {[0 for _ in range(total_counters)] : 0}
+        presses_required_for_joltage = {tuple(0 for _ in range(total_counters)) : 0}
 
-        def turnOffLights(joltage):
+        all_button_combinations_lights = {}
 
-            lights = {
-                sum(
-                    (jolt % 2) * 2 ** power
-                        for power, jolt 
-                        in enumerate(joltage)
-                ) : joltage
+        for button, light_change in buttons.items():
+
+            all_button_combinations_lights |= {
+                (*button_combo, button) : light ^ light_change
+                    for button_combo, light 
+                    in all_button_combinations_lights.items()
             }
 
-            button_presses = 0
+            all_button_combinations_lights[tuple((button,))] = light_change
 
-            while 0 not in lights:
+        turn_off_lights = {}
 
-                press_button = set((
-                    light ^ b
-                        for light in lights
-                        for b in buttons
-                ))
-
-                lights |= press_button
-
-                button_presses += 1
-
-            return 
-
+        for buttons, lights in all_button_combinations_lights.items():
+            
+            joltage_reduction = getJoltageFromCombo(buttons)
+            
+            if lights not in turn_off_lights:
+                turn_off_lights[lights] = {joltage_reduction : len(buttons)}
+            elif joltage_reduction not in turn_off_lights[lights]:
+                turn_off_lights[lights][joltage_reduction] = len(buttons)
+            else:
+                turn_off_lights[lights][joltage_reduction] = min(turn_off_lights[lights][joltage_reduction], len(buttons))
+            
         def findMinimumPresses(joltage) -> int:
 
             # already seen
@@ -188,34 +187,41 @@ class Solution:
                 return presses_required_for_joltage[joltage]
 
             # can I half
-            if sum(jolt % 2 for jolt in joltage) == 0:
-                if (new_joltage_to_find := [jolt // 2 for jolt in joltage]) not in presses_required_for_joltage:
+            if (lights := sum((jolt % 2) * 2 **  power for power, jolt in enumerate(joltage))) == 0:
+
+                if (new_joltage_to_find := tuple(jolt // 2 for jolt in joltage)) not in presses_required_for_joltage:
                     presses_required_for_joltage[new_joltage_to_find] = findMinimumPresses(new_joltage_to_find)
 
                 presses_required_for_joltage[joltage] = 2 * presses_required_for_joltage[new_joltage_to_find]
                 return presses_required_for_joltage[joltage]
 
             # not seen and can't half
-
             possible_presses = [1e6]
 
-            combos_to_turn_off_lights = turnOffLights(joltage)
+            try:
+                for joltage_reduction, presses in turn_off_lights[lights].items():
 
-            for new_joltage_to_find, presses in combos_to_turn_off_lights:
-                if new_joltage_to_find not in presses_required_for_joltage:
-                    presses_required_for_joltage[new_joltage_to_find] = findMinimumPresses(new_joltage_to_find)
+                    new_joltage_to_find = tuple(
+                        a - b
+                            for a, b
+                            in zip(joltage, joltage_reduction)
+                    )
 
-                possible_presses.append(presses_required_for_joltage[new_joltage_to_find] + presses)
+                    if sum(map(abs, new_joltage_to_find)) > sum(new_joltage_to_find):
+                        continue
+
+                    if new_joltage_to_find not in presses_required_for_joltage:
+                        presses_required_for_joltage[new_joltage_to_find] = findMinimumPresses(new_joltage_to_find)
+
+                    possible_presses.append(presses_required_for_joltage[new_joltage_to_find] + presses)
+            except KeyError:
+                pass
 
             presses_required_for_joltage[joltage] = min(possible_presses)
 
             return presses_required_for_joltage[joltage]
 
-        # return findMinimumPresses(joltage_target)
-
-        findMinimumPresses(joltage_target)
-        print(presses_required_for_joltage)
-        return presses_required_for_joltage[joltage_target]
+        return findMinimumPresses(joltage_target)
 
     def testSolution2(self) -> bool:
 
@@ -256,6 +262,6 @@ class Solution:
 
 a = Solution()
 # a.testSolution1()
-# a.runPart1()
+a.runPart1()
 # a.testSolution2()
 a.runPart2()
